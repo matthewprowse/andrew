@@ -70,7 +70,14 @@ class UpdateGeoIpDatabase extends Command
         }
 
         while (! gzeof($in)) {
-            fwrite($out, gzread($in, 1024 * 1024));
+            $data = gzread($in, 1024 * 1024);
+            if ($data === false) {
+                gzclose($in);
+                fclose($out);
+
+                return false;
+            }
+            fwrite($out, $data);
         }
 
         gzclose($in);

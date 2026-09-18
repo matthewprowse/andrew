@@ -47,6 +47,10 @@ class PublicSettings
     }
 
     /** @return array<string, mixed> */
+    /**
+     * @param  array<string, mixed>  $site
+     * @return array<string, mixed>
+     */
     public static function normalizeSite(array $site): array
     {
         $defaults = self::defaults();

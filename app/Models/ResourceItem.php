@@ -106,8 +106,8 @@ class ResourceItem extends Model
     {
         return [
             'id' => (string) $this->id,
-            'categorySlug' => $this->category?->slug ?? '',
-            'categoryTitle' => $this->category?->title ?? '',
+            'categorySlug' => data_get($this->category, 'slug', ''),
+            'categoryTitle' => data_get($this->category, 'title', ''),
             'title' => $this->title,
             'description' => $this->description ?? '',
             'actionLabel' => $this->action_label ?? '',
@@ -136,7 +136,7 @@ class ResourceItem extends Model
 
         return [
             'id' => (string) $this->id,
-            'categorySlug' => $this->category?->slug ?? '',
+            'categorySlug' => data_get($this->category, 'slug', ''),
             'title' => $this->title,
             'description' => $this->description ?? '',
             'actionLabel' => $this->action_label ?? '',

@@ -4,8 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\AnalyticsEvent;
 use Carbon\Carbon;
+use Carbon\CarbonInterface;
 use Carbon\CarbonPeriod;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Inertia\Inertia;
 use Inertia\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -24,13 +28,17 @@ class AdminAnalyticsController extends Controller
             ->selectRaw('DATE(occurred_at) as date, event_type, COUNT(*) as total')
             ->groupBy('date', 'event_type')->get()
             ->groupBy('date');
-        $dailyVisits = collect(CarbonPeriod::create($since->copy()->startOfDay(), $until->copy()->startOfDay()))->map(fn ($date) => [
-            'date' => $date->format('Y-m-d'),
-            'views' => (int) ($daily->get($date->format('Y-m-d'))?->views ?? 0),
-            'sessions' => (int) ($daily->get($date->format('Y-m-d'))?->sessions ?? 0),
-            'ctaClicks' => (int) ($dailyEvents->get($date->format('Y-m-d'))?->firstWhere('event_type', 'cta_click')?->total ?? 0),
-            'resourceDownloads' => (int) ($dailyEvents->get($date->format('Y-m-d'))?->firstWhere('event_type', 'resource_download')?->total ?? 0),
-        ])->values();
+        $dailyVisits = collect(iterator_to_array(CarbonPeriod::create($since->copy()->startOfDay(), $until->copy()->startOfDay())))->map(function (CarbonInterface $date) use ($daily, $dailyEvents): array {
+            $dayEvents = $dailyEvents->get($date->format('Y-m-d')) ?? collect();
+
+            return [
+                'date' => $date->format('Y-m-d'),
+                'views' => (int) data_get($daily->get($date->format('Y-m-d')), 'views', 0),
+                'sessions' => (int) data_get($daily->get($date->format('Y-m-d')), 'sessions', 0),
+                'ctaClicks' => (int) data_get($dayEvents->firstWhere('event_type', 'cta_click'), 'total', 0),
+                'resourceDownloads' => (int) data_get($dayEvents->firstWhere('event_type', 'resource_download'), 'total', 0),
+            ];
+        })->values();
 
         return Inertia::render('admin/analytics/index', [
             'days' => $period === 'custom' ? null : (int) $period,
@@ -64,6 +72,9 @@ class AdminAnalyticsController extends Controller
 
         return response()->streamDownload(function () use ($events): void {
             $out = fopen('php://output', 'w');
+            if ($out === false) {
+                return;
+            }
             fputcsv($out, ['Metric', 'Value']);
             foreach (['Page views' => (clone $events)->where('event_type', 'page_view')->count(), 'Unique sessions' => (clone $events)->where('event_type', 'page_view')->whereNotNull('session_hash')->distinct()->count('session_hash'), 'CTA clicks' => (clone $events)->where('event_type', 'cta_click')->count(), 'Resource downloads' => (clone $events)->where('event_type', 'resource_download')->count()] as $metric => $value) {
                 fputcsv($out, [$metric, $value]);
@@ -71,13 +82,13 @@ class AdminAnalyticsController extends Controller
             fputcsv($out, []);
             fputcsv($out, ['Page', 'Views']);
             foreach ($this->ranked($events, 'page_view', 'path', 'views', true) as $row) {
-                fputcsv($out, [$row->path, $row->views]);
+                fputcsv($out, [$row['path'], $row['views']]);
             }
             fclose($out);
         }, "analytics-{$label}.csv", ['Content-Type' => 'text/csv']);
     }
 
-    /** @return array{0: Carbon, 1: Carbon, 2: int|string} */
+    /** @return array{0: CarbonInterface, 1: CarbonInterface, 2: int|string} */
     private function period(Request $request): array
     {
         $start = $this->parseDate($request->input('start_date'));
@@ -92,7 +103,7 @@ class AdminAnalyticsController extends Controller
         return [$end->copy()->subDays($days - 1)->startOfDay(), $end, $days];
     }
 
-    private function parseDate(mixed $value): ?Carbon
+    private function parseDate(mixed $value): ?CarbonInterface
     {
         if (! is_string($value) || $value === '') {
             return null;
@@ -104,7 +115,8 @@ class AdminAnalyticsController extends Controller
         }
     }
 
-    private function eventsSince(mixed $since, mixed $until, string $search = '')
+    /** @return Builder<AnalyticsEvent> */
+    private function eventsSince(CarbonInterface $since, CarbonInterface $until, string $search = ''): Builder
     {
         $query = AnalyticsEvent::query()->whereBetween('occurred_at', [$since, $until]);
         if ($search !== '') {
@@ -119,13 +131,26 @@ class AdminAnalyticsController extends Controller
         return $query;
     }
 
-    private function ranked($events, string $type, string $field, string $alias, bool $excludeEmpty = false)
+    /**
+     * @param  Builder<AnalyticsEvent>  $events
+     * @return Collection<int, array<string, mixed>>
+     */
+    private function ranked(Builder $events, string $type, string $field, string $alias, bool $excludeEmpty = false): Collection
     {
         $query = (clone $events)->where('event_type', $type);
         if ($excludeEmpty) {
             $query->whereNotNull($field)->where($field, '<>', '');
         }
 
-        return $query->selectRaw("{$field} as {$field}, COUNT(*) as {$alias}")->groupBy($field)->orderByDesc($alias)->orderBy($field)->limit(10)->get();
+        $select = match ($field) {
+            'path' => 'path as path, COUNT(*) as views',
+            'referrer_host' => 'referrer_host as referrer_host, COUNT(*) as views',
+            'device_type' => 'device_type as device_type, COUNT(*) as views',
+            'browser' => 'browser as browser, COUNT(*) as views',
+            default => throw new \InvalidArgumentException("Unsupported analytics field: {$field}"),
+        };
+
+        return $query->selectRaw($select)->groupBy($field)->orderByDesc($alias)->orderBy($field)->limit(10)->get()
+            ->map(fn (Model $row): array => $row->getAttributes())->values()->toBase();
     }
 }

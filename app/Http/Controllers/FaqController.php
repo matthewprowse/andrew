@@ -39,7 +39,7 @@ class FaqController extends Controller
         return to_route('admin.faqs');
     }
 
-    /** @return array<string, mixed> */
+    /** @return array{0: array<string, mixed>, 1: list<int>} */
     private function fields(SaveFaqRequest $request): array
     {
         $data = $request->validated();

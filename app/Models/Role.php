@@ -47,17 +47,21 @@ class Role extends Model
             'id' => $this->id,
             'name' => $this->name,
             'description' => $this->description ?? '',
-            'permissions' => collect(config('admin.sections', []))->keys()->mapWithKeys(function (string $section): array {
+            'permissions' => array_reduce(array_keys(config('admin.sections', [])), function (array $permissions, string|int $section): array {
+                $section = (string) $section;
                 $stored = $this->permissions[$section] ?? [];
                 $actions = [];
                 foreach (array_keys(config('admin.actions', [])) as $action) {
+                    $action = (string) $action;
                     $actions[$action] = array_key_exists($action, $stored)
                         ? (bool) $stored[$action]
                         : ($action === 'create' && (bool) ($stored['edit'] ?? false));
                 }
 
-                return [$section => $actions];
-            })->all(),
+                $permissions[$section] = $actions;
+
+                return $permissions;
+            }, []),
             'userCount' => $this->users()->count(),
         ];
     }

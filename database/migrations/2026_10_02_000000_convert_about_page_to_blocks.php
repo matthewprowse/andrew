@@ -30,7 +30,10 @@ return new class extends Migration
         $isFreshRow = ! $about;
         if ($isFreshRow) {
             $aboutId = DB::table('pages')->insertGetId(['slug' => 'about', 'created_at' => now(), 'updated_at' => now()]);
-            $about = DB::table('pages')->find($aboutId);
+            $about = DB::table('pages')->where('id', $aboutId)->first();
+        }
+        if (! $about) {
+            throw new RuntimeException('About page could not be loaded.');
         }
         $aboutId = $about->id;
 
@@ -39,7 +42,7 @@ return new class extends Migration
         // verbatim, or every card renders with no title at all.
         $rawSections = json_decode((string) ($about->sections ?? '[]'), true) ?: [];
         $sections = array_map(fn (array $s) => ['title' => $s['heading'] ?? '', 'text' => $s['description'] ?? ''], $rawSections);
-        $image = $about->intro_image_media_id ? Media::find($about->intro_image_media_id) : null;
+        $image = $about->intro_image_media_id ? Media::query()->whereKey($about->intro_image_media_id)->first() : null;
         // A genuinely new row has no prior "show the team section" choice
         // to preserve — default to showing it, matching the page's original
         // intent (every existing row already had a real value either way).
@@ -92,7 +95,7 @@ return new class extends Migration
             'blocks' => json_encode($blocks), 'updated_at' => now(),
         ]);
 
-        $snapshot = Page::find($aboutId)?->adminData();
+        $snapshot = Page::query()->whereKey($aboutId)->first()?->adminData();
         if ($snapshot) {
             PageRevision::create([
                 'page_id' => $aboutId, 'status' => 'published',

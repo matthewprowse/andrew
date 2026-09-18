@@ -112,7 +112,7 @@ return new class extends Migration
         // as published (see PageController::isPublished()) — the live row
         // above is the actual page rendered; this revision is that same
         // content's audit-trail entry, not a separate source of truth.
-        $snapshot = Page::find($home->id)?->adminData();
+        $snapshot = Page::query()->whereKey($home->id)->first()?->adminData();
         if ($snapshot) {
             PageRevision::create([
                 'page_id' => $home->id, 'status' => 'published',

@@ -59,7 +59,9 @@ class ServiceController extends Controller
                 'publishDate' => $post->publish_date?->format('Y-m-d') ?? '',
             ]);
 
-        $resourceIds = collect($service->featured_services ?? [])
+        /** @var list<array{resource_ids?: list<int|string>}> $featuredServices */
+        $featuredServices = $service->featured_services ?? [];
+        $resourceIds = collect($featuredServices)
             ->flatMap(fn (array $feature): array => $feature['resource_ids'] ?? [])
             ->map(fn ($id): int => (int) $id)
             ->filter()->unique()->values();
@@ -72,7 +74,7 @@ class ServiceController extends Controller
             ->with(['category', 'file', 'image'])
             ->orderBy('sort_order')->orderByDesc('id')->get()
             ->map(fn (ResourceItem $resource): array => $resource->publicData())
-            ->reject(fn (array $resource): bool => $resourceIds->contains((int) $resource['id']))
+            ->reject(fn (array $resource): bool => in_array((int) $resource['id'], $resourceIds->all(), true))
             ->values();
 
         $featuredResourceMap = ResourceItem::publiclyVisible()
@@ -81,14 +83,18 @@ class ServiceController extends Controller
             ->get()
             ->mapWithKeys(fn (ResourceItem $resource): array => [(string) $resource->id => $resource->publicData()]);
         $serviceData = $service->publicData();
-        $serviceData['featured_services'] = collect($serviceData['featured_services'] ?? [])
-            ->map(function (array $feature) use ($featuredResourceMap): array {
-                $feature['resources'] = collect($feature['resource_ids'] ?? [])
-                    ->map(fn ($id) => $featuredResourceMap->get((string) $id))
-                    ->filter()->values()->all();
+        /** @var list<array<string, mixed>> $serviceFeatures */
+        $serviceFeatures = $serviceData['featured_services'] ?? [];
+        $serviceData['featured_services'] = array_map(function (array $feature) use ($featuredResourceMap): array {
+            /** @var list<int|string> $featureResourceIds */
+            $featureResourceIds = is_array($feature['resource_ids'] ?? null) ? $feature['resource_ids'] : [];
+            $feature['resources'] = array_values(array_filter(array_map(
+                fn (int|string $id): mixed => $featuredResourceMap->get((string) $id),
+                $featureResourceIds,
+            ), static fn (mixed $resource): bool => is_array($resource)));
 
-                return $feature;
-            })->values()->all();
+            return $feature;
+        }, $serviceFeatures);
 
         return Inertia::render('service', [
             'service' => $serviceData,

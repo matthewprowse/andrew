@@ -21,7 +21,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // Set TRUSTED_PROXIES in production so request->ip() resolves the
         // visitor rather than the reverse proxy/load balancer address.
-        $middleware->trustProxies(at: env('TRUSTED_PROXIES'));
+        $trustedProxies = $_ENV['TRUSTED_PROXIES'] ?? null;
+        $middleware->trustProxies(at: is_string($trustedProxies) ? $trustedProxies : null);
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
 
         $middleware->web(append: [

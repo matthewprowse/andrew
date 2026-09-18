@@ -6,6 +6,7 @@ use App\Models\Faq;
 use App\Models\Service;
 use App\Models\Testimonial;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -57,15 +58,21 @@ class AdminReusableContentController extends Controller
         return to_route('admin.faqs');
     }
 
-    private function services()
+    /** @return Collection<int, array{id: string, name: string}> */
+    private function services(): Collection
     {
         return Service::query()
             ->orderBy('sort_order')
             ->orderBy('id')
             ->get(['id', 'name'])
             ->map(fn (Service $service) => [
-                'id' => (string) $service->id,
+                'id' => $this->serviceId($service->id),
                 'name' => $service->name,
             ]);
+    }
+
+    private function serviceId(int|string|null $id): string
+    {
+        return (string) $id;
     }
 }

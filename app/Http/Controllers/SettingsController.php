@@ -16,7 +16,7 @@ class SettingsController extends Controller
     {
         $record = SiteSetting::find(1);
 
-        return Inertia::render('admin/settings/index', ['section' => $section, 'settings' => ['site' => PublicSettings::normalizeSite($record?->site ?? []), 'menu' => $record ? $record->menu : PublicSettings::menu(), 'socialLinks' => $record ? $record->social_links : []]]);
+        return Inertia::render('admin/settings/index', ['section' => $section, 'settings' => ['site' => PublicSettings::normalizeSite($record ? $record->site : []), 'menu' => $record ? $record->menu : PublicSettings::menu(), 'socialLinks' => $record ? $record->social_links : []]]);
     }
 
     public function update(SaveSettingsRequest $request, string $section): RedirectResponse

@@ -67,15 +67,17 @@ class HandleInertiaRequests extends Middleware
         $user = $request->user();
         /** @var list<string> $sections */
         $sections = array_map('strval', array_keys(config('admin.sections', [])));
+        /** @var list<string> $actions */
+        $actions = array_map('strval', array_keys(config('admin.actions', [])));
 
         if (! $user) {
-            return array_fill_keys($sections, array_fill_keys(array_keys(config('admin.actions', [])), false));
+            return array_fill_keys($sections, array_fill_keys($actions, false));
         }
 
         $permissions = [];
         foreach ($sections as $section) {
             $permissions[$section] = [];
-            foreach (array_keys(config('admin.actions', [])) as $action) {
+            foreach ($actions as $action) {
                 $permissions[$section][$action] = $user->canAdmin($section, $action);
             }
         }

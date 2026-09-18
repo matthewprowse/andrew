@@ -77,11 +77,11 @@ class AdminCustomersController extends Controller
             ]);
         });
 
-        if (request()->user()?->canAdmin('inquiries', 'view')) {
+        if (request()->user()->canAdmin('inquiries', 'view')) {
             Lead::query()->whereNull('anonymized_at')->get()->each(function (Lead $lead) use ($add): void {
                 $add($lead->email, [
                     'name' => $lead->name,
-                    'date' => $lead->submitted_at?->toIso8601String(),
+                    'date' => $lead->submitted_at->toIso8601String(),
                     'type' => 'inquiry',
                     'label' => $lead->subject ?: 'Inquiry',
                     'recordKey' => 'inquiryRecords',
@@ -91,7 +91,7 @@ class AdminCustomersController extends Controller
                         'message' => $lead->message,
                         'label' => $lead->subject ?: 'Inquiry',
                         'detail' => $lead->message,
-                        'date' => $lead->submitted_at?->toIso8601String(),
+                        'date' => $lead->submitted_at->toIso8601String(),
                         'status' => $lead->handled ? 'Handled' : 'Open',
                         'href' => '/admin/inquiries?lead='.$lead->id,
                     ],
@@ -104,7 +104,7 @@ class AdminCustomersController extends Controller
                 $add($request->email, [
                     'name' => $request->name ?: trim($request->first_name.' '.$request->last_name),
                     'company' => $request->company,
-                    'date' => $request->submitted_at?->toIso8601String(),
+                    'date' => $request->submitted_at->toIso8601String(),
                     'type' => 'resource-request',
                     'label' => $request->item?->title ?: 'Resource request',
                     'recordKey' => 'inquiryRecords',
@@ -114,7 +114,7 @@ class AdminCustomersController extends Controller
                         'message' => null,
                         'label' => $request->item?->title ?: 'Resource request',
                         'detail' => $request->company,
-                        'date' => $request->submitted_at?->toIso8601String(),
+                        'date' => $request->submitted_at->toIso8601String(),
                         'status' => $request->verified_at ? 'Verified' : 'Unverified',
                         'href' => '/admin/inquiries?resourceRequest='.$request->id,
                     ],
@@ -124,7 +124,7 @@ class AdminCustomersController extends Controller
             });
         }
 
-        if (request()->user()?->canAdmin('orders', 'view')) {
+        if (request()->user()->canAdmin('orders', 'view')) {
             Order::query()->with(['item', 'resourceRequest'])->whereNull('anonymized_at')->get()->each(function (Order $order) use ($add): void {
                 $add($order->email, [
                     'name' => $order->buyerName(),
@@ -152,8 +152,7 @@ class AdminCustomersController extends Controller
 
         return Inertia::render('admin/customers/index', [
             'customers' => $customers->map(function (array $customer): array {
-                $customer['activities'] = collect($customer['activities'])
-                    ->sortByDesc('date')->values()->all();
+                usort($customer['activities'], static fn (array $left, array $right): int => strcmp((string) $right['date'], (string) $left['date']));
 
                 return $customer;
             })->sortByDesc('lastActivity')->values()->all(),

@@ -25,7 +25,7 @@ class AdminCompanyController extends Controller
         return Inertia::render('admin/company/index', [
             'section' => $section,
             'settings' => [
-                'site' => PublicSettings::normalizeSite($record?->site ?? []),
+                'site' => PublicSettings::normalizeSite($record ? $record->site : []),
                 'menu' => $record ? $record->menu : PublicSettings::menu(),
                 'socialLinks' => $record ? $record->social_links : [],
             ],
