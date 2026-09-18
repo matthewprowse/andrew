@@ -1,0 +1,80 @@
+name: Deploy to xneelo
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          tools: composer:v2
+          coverage: none
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install PHP dependencies
+        run: composer install --no-dev --prefer-dist --optimize-autoloader
+
+      - name: Build frontend without SSR
+        run: |
+          npm ci
+          npm run build
+
+      - name: Prepare xneelo package
+        run: |
+          rm -rf deploy
+          mkdir deploy
+          rsync -a \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='.env' \
+            --exclude='node_modules' \
+            --exclude='public' \
+            --exclude='storage' \
+            --exclude='deploy' \
+            ./ deploy/
+          rsync -a public/ deploy/
+          mkdir -p deploy/storage/app/public deploy/storage/framework/cache deploy/storage/framework/sessions deploy/storage/framework/views deploy/storage/logs
+          sed -i "s#__DIR__.'/../#__DIR__.'/#g" deploy/index.php
+          tar -czf release.tar.gz -C deploy --exclude='.env' --exclude='storage' .
+
+      - name: Upload release archive to xneelo
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.XNEELO_HOST }}
+          username: ${{ secrets.XNEELO_USERNAME }}
+          port: ${{ secrets.XNEELO_PORT }}
+          password: ${{ secrets.XNEELO_PASSWORD }}
+          source: 'release.tar.gz'
+          target: 'public_html'
+
+      - name: Extract release on xneelo
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.XNEELO_HOST }}
+          username: ${{ secrets.XNEELO_USERNAME }}
+          port: ${{ secrets.XNEELO_PORT }}
+          password: ${{ secrets.XNEELO_PASSWORD }}
+          script: |
+            set -eu
+            cd public_html
+            tar -xzf release.tar.gz --exclude='./.env' --exclude='./storage'
+            rm release.tar.gz

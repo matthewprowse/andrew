@@ -1,0 +1,86 @@
+{
+    "_note": "Copy for the eight blocks currently hardcoded as `lorem` in resources/js/pages/home.tsx. Keys are keyed by the section they belong to, with the current line number of the placeholder for orientation. Replace the literal in place; do not introduce a new CMS field unless the brief says so.",
+    "servicesIntro": {
+        "line": 189,
+        "heading": "Services Built Around Your Move",
+        "text": "From first planning conversations to life after arrival, our specialists connect the practical details of a move with the experience of the people making it."
+    },
+    "africanReach": {
+        "line": 242,
+        "heading": "African Reach, Local Understanding",
+        "text": "Local knowledge changes everything. Our African network helps clients understand the realities on the ground, coordinate each stage of a move and respond with clarity when plans change."
+    },
+    "audienceCards": {
+        "line": 266,
+        "cards": [
+            {
+                "title": "For Businesses",
+                "text": "Build a mobility programme that supports business continuity, employee experience and cost visibility."
+            },
+            {
+                "title": "For Individuals and Families",
+                "text": "Make a new city feel navigable with practical, personal support before, during and after arrival."
+            },
+            {
+                "title": "For Global Mobility Partners",
+                "text": "Extend your reach with a responsive African destination-services partner who understands local delivery."
+            }
+        ]
+    },
+    "valuesIntro": {
+        "line": 285,
+        "heading": "The People Behind Every Move",
+        "text": "Behind every successful relocation is a team that listens carefully, acts responsibly and takes ownership."
+    },
+    "relocoaching": {
+        "line": 324,
+        "heading": "Support Beyond the Move",
+        "text": "An international move can bring excitement as well as uncertainty. Through our Relocoaching partnership, assignees and families can access independent support that builds resilience, eases cultural adjustment and helps them thrive in their new environment."
+    },
+    "knowledgeIntro": {
+        "line": 371,
+        "heading": "Knowledge for Your Next Chapter",
+        "text": "Practical knowledge makes better mobility decisions. Explore perspectives, learning and resources from our team and partners."
+    },
+    "knowledgeCards": {
+        "line": 378,
+        "cards": [
+            {
+                "title": "Insights and News",
+                "href": "/blog",
+                "text": "Perspectives on mobility, immigration, remuneration and life across Africa."
+            },
+            {
+                "title": "Webinars and Learning",
+                "href": "/resources/webinars",
+                "text": "Practical sessions for HR, mobility professionals and relocating employees."
+            },
+            {
+                "title": "Company Brochures",
+                "href": "/resources/brochures",
+                "text": "A clear introduction to Relocation Africa's services and approach."
+            }
+        ]
+    },
+    "finalCta": {
+        "line": 396,
+        "heading": "Let's Plan Your Next Move",
+        "text": "Whether you are moving one employee or building a regional mobility programme, Relocation Africa brings local insight, practical coordination and personal support to every stage of the journey.",
+        "label": "Contact Our Team"
+    },
+    "serviceCardFallback": {
+        "line": 211,
+        "note": "`service.intro || lorem` — the fallback should simply render nothing rather than placeholder text, since every service now carries a real intro.",
+        "text": ""
+    },
+    "aboutCareersFallbacks": {
+        "note": "about.tsx and careers.tsx use `content.X || lorem` fallbacks. Every one of those fields now has real content in the pages table, so the fallback should render an empty string, not placeholder copy.",
+        "text": ""
+    },
+    "estimatorLeadCapture": {
+        "file": "resources/js/pages/estimator.tsx",
+        "line": 609,
+        "heading": "Get Your Estimate by Email",
+        "note": "The paragraph beneath it already reads 'Pop in your email and we'll send a...' — keep that copy and only replace the placeholder heading."
+    }
+}

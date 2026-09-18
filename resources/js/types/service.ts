@@ -1,0 +1,34 @@
+export type ServiceRecord = {
+    id: number;
+    name: string;
+    headline: string;
+    slug: string;
+    intro: string;
+    body: string;
+    rich_content: string;
+    icon: string;
+    banner_image: string;
+    banner_media_id?: number | null;
+    bannerImage?: { id: string; url: string; fileName: string } | null;
+    bannerImageUrl?: string;
+    bannerImageAlt?: string;
+    cta_text: string;
+    cta_description: string;
+    cta_button_label: string;
+    cta_link: string;
+    sort_order: number;
+    updatedAt: string;
+    status: 'Draft' | 'Live';
+    scope: { heading: string; intro?: string; items?: string[] }[];
+    countries: string[];
+    featured_primary: string[];
+    featured_services: {
+        name: string;
+        description: string;
+        resource_ids?: number[];
+        resources?: import('@/types/resource').ResourceItemRecord[];
+    }[];
+    faqs: { question: string; answer: string }[];
+    metaTitle?: string;
+    metaDescription?: string;
+};

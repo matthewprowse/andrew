@@ -1,0 +1,53 @@
+{
+    "brochures": [
+        {
+            "title": "Corporate Relocation Overview",
+            "actionLabel": "Download PDF",
+            "description": "A practical guide for employers and HR teams covering our end-to-end corporate relocation services, with clear takeaways for organisations managing mobility across Africa."
+        },
+        {
+            "title": "Destination Services Guide",
+            "actionLabel": "Download PDF",
+            "description": "A practical guide for relocating employees and their families covering home search, orientation and settling-in support, with clear takeaways for organisations managing mobility across Africa."
+        },
+        {
+            "title": "Immigration Services Brochure",
+            "actionLabel": "Download PDF",
+            "description": "A practical guide for global mobility and HR teams covering visas, work permits and immigration compliance, with clear takeaways for organisations managing mobility across Africa."
+        }
+    ],
+    "webinars": [
+        {
+            "title": "Managing Global Mobility in 2026",
+            "actionLabel": "Watch Webinar",
+            "description": "A practical webinar for global mobility and HR professionals covering the trends shaping international assignments, with clear takeaways for organisations managing mobility across Africa."
+        },
+        {
+            "title": "Relocation Policy Best Practices",
+            "actionLabel": "Watch Webinar",
+            "description": "A practical webinar for HR and mobility teams covering how to design and refine an effective relocation policy, with clear takeaways for organisations managing mobility across Africa."
+        },
+        {
+            "title": "Navigating Cross-Border Assignments",
+            "actionLabel": "Watch Webinar",
+            "description": "A practical webinar for HR and finance teams covering the realities of structuring and managing cross-border assignments, with clear takeaways for organisations managing mobility across Africa."
+        }
+    ],
+    "books": [
+        {
+            "title": "The Global Mobility Handbook",
+            "actionLabel": "Explore Book",
+            "description": "A practical book for HR and mobility professionals covering the fundamentals of managing international assignments, with clear takeaways for organisations managing mobility across Africa."
+        },
+        {
+            "title": "Relocating with Confidence",
+            "actionLabel": "Explore Book",
+            "description": "A practical book for assignees and their families covering how to settle into a new country and culture, with clear takeaways for organisations managing mobility across Africa."
+        },
+        {
+            "title": "A Guide to African Markets",
+            "actionLabel": "Explore Book",
+            "description": "A practical book for assignees and relocating organisations covering the realities of living and working across African markets, with clear takeaways for organisations managing mobility across Africa."
+        }
+    ]
+}

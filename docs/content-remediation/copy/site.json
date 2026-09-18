@@ -1,0 +1,17 @@
+{
+    "_note": "Values for App\\Support\\PublicSettings::defaults() and the site_settings row. `footerText`, `copyrightLine`, `euraHeading` and `euraText` are currently empty strings; `defaultCtaText` and `defaultCtaDescription` are currently Lorem Ipsum.",
+    "footerText": "Relocation Africa helps employers, global mobility teams and relocating families navigate mobility, immigration, research, remuneration and training across Africa.",
+    "copyrightLine": "© Relocation Africa. All rights reserved.",
+    "defaultCtaText": "Make your African move work.",
+    "defaultCtaDescription": "Whether you are moving one employee or building a regional mobility programme, Relocation Africa brings local insight, practical coordination and personal support to every stage of the journey.",
+    "defaultCtaButtonLabel": "Talk to our team",
+    "defaultCtaLink": "/contact",
+    "euraHeading": "Committed to Professional Mobility Standards",
+    "euraText": "Relocation Africa is a member of the European Relocation Association (EuRA) and works in line with its ethical standards and Rules of Conduct. We value professional practice, knowledge-sharing and continual improvement across employee mobility.",
+    "organizationName": "Relocation Africa",
+    "defaultOgImage": "",
+    "_euraCaveat": "The EuRA membership statement is an unverified factual claim. It must be confirmed by the client before this text is published — see 05-client-confirmation.md.",
+    "resourceDescriptionFormula": "A practical [report/guide/webinar] for [audience] covering [specific topic], with clear takeaways for organisations managing mobility across Africa.",
+    "careerDescriptionTemplate": "We are seeking a [Job Title] to support relocating assignees and clients in [Location]. You will coordinate practical relocation services, build trusted local relationships and deliver a responsive experience from first briefing to settling in. The role suits someone with strong local knowledge, excellent communication skills and a calm, service-led approach.",
+    "_careerCaveat": "This template must not be used to publish a live job listing. The two seeded roles stay closed until the client confirms the role, location and application method — see 05-client-confirmation.md."
+}

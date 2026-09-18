@@ -1,0 +1,356 @@
+@import 'tailwindcss';
+
+@import 'tw-animate-css';
+
+@import '@fontsource-variable/geist';
+@import '@fontsource-variable/geist-mono';
+
+@source '../views';
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+
+@custom-variant dark (&:is([data-app-dark] *:not([data-marketing-site], [data-marketing-site] *), [data-marketing-site].dark *));
+
+@theme {
+    --font-sans:
+        'Geist Variable', ui-sans-serif, system-ui, sans-serif,
+        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+        'Noto Color Emoji';
+    --font-mono: 'Geist Mono Variable', ui-monospace, monospace;
+
+    --radius-lg: var(--radius);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-sm: calc(var(--radius) - 4px);
+
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+    --color-chart-5: var(--chart-5);
+
+    --color-sidebar: var(--sidebar);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.145 0 0);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.145 0 0);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.145 0 0);
+    --primary: oklch(0.205 0 0);
+    --primary-foreground: oklch(0.985 0 0);
+    --secondary: oklch(0.97 0 0);
+    --secondary-foreground: oklch(0.205 0 0);
+    --muted: oklch(0.97 0 0);
+    --muted-foreground: oklch(0.556 0 0);
+    --accent: oklch(0.97 0 0);
+    --accent-foreground: oklch(0.205 0 0);
+    --destructive: oklch(0.577 0.245 27.325);
+    --destructive-foreground: oklch(0.577 0.245 27.325);
+    --border: oklch(0.922 0 0);
+    --input: oklch(0.922 0 0);
+    --ring: oklch(0.87 0 0);
+    --chart-1: oklch(0.646 0.222 41.116);
+    --chart-2: oklch(0.6 0.118 184.704);
+    --chart-3: oklch(0.398 0.07 227.392);
+    --chart-4: oklch(0.828 0.189 84.429);
+    --chart-5: oklch(0.769 0.188 70.08);
+    --radius: 0.625rem;
+    --sidebar: oklch(0.985 0 0);
+    --sidebar-foreground: oklch(0.145 0 0);
+    --sidebar-primary: oklch(0.205 0 0);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.97 0 0);
+    --sidebar-accent-foreground: oklch(0.205 0 0);
+    --sidebar-border: oklch(0.922 0 0);
+    --sidebar-ring: oklch(0.87 0 0);
+}
+
+.dark {
+    --background: oklch(0.145 0 0);
+    --foreground: oklch(0.985 0 0);
+    --card: oklch(0.145 0 0);
+    --card-foreground: oklch(0.985 0 0);
+    --popover: oklch(0.145 0 0);
+    --popover-foreground: oklch(0.985 0 0);
+    --primary: oklch(0.985 0 0);
+    --primary-foreground: oklch(0.205 0 0);
+    --secondary: oklch(0.269 0 0);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.269 0 0);
+    --muted-foreground: oklch(0.708 0 0);
+    --accent: oklch(0.269 0 0);
+    --accent-foreground: oklch(0.985 0 0);
+    --destructive: oklch(0.396 0.141 25.723);
+    --destructive-foreground: oklch(0.637 0.237 25.331);
+    --border: oklch(0.269 0 0);
+    --input: oklch(0.269 0 0);
+    --ring: oklch(0.439 0 0);
+    --chart-1: oklch(0.488 0.243 264.376);
+    --chart-2: oklch(0.696 0.17 162.48);
+    --chart-3: oklch(0.769 0.188 70.08);
+    --chart-4: oklch(0.627 0.265 303.9);
+    --chart-5: oklch(0.645 0.246 16.439);
+    --sidebar: oklch(0.205 0 0);
+    --sidebar-foreground: oklch(0.985 0 0);
+    --sidebar-primary: oklch(0.985 0 0);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.269 0 0);
+    --sidebar-accent-foreground: oklch(0.985 0 0);
+    --sidebar-border: oklch(0.269 0 0);
+    --sidebar-ring: oklch(0.439 0 0);
+}
+
+/* Start every marketing page from the same ShadCN token set as the current
+ * public site. This is intentionally complete: marketing must not inherit
+ * the account/admin dark-mode variables from html. */
+[data-marketing-site] {
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.145 0 0);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.145 0 0);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.145 0 0);
+    --primary: oklch(0.205 0 0);
+    --primary-foreground: oklch(0.985 0 0);
+    --secondary: oklch(0.97 0 0);
+    --secondary-foreground: oklch(0.205 0 0);
+    --muted: oklch(0.97 0 0);
+    --muted-foreground: oklch(0.556 0 0);
+    --accent: oklch(0.97 0 0);
+    --accent-foreground: oklch(0.205 0 0);
+    --destructive: oklch(0.577 0.245 27.325);
+    --destructive-foreground: oklch(0.577 0.245 27.325);
+    --border: oklch(0.922 0 0);
+    --input: oklch(0.922 0 0);
+    --ring: oklch(0.87 0 0);
+}
+
+[data-marketing-site].dark {
+    --background: oklch(0.145 0 0);
+    --foreground: oklch(0.985 0 0);
+    --card: oklch(0.145 0 0);
+    --card-foreground: oklch(0.985 0 0);
+    --popover: oklch(0.145 0 0);
+    --popover-foreground: oklch(0.985 0 0);
+    --primary: oklch(0.985 0 0);
+    --primary-foreground: oklch(0.205 0 0);
+    --secondary: oklch(0.269 0 0);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.269 0 0);
+    --muted-foreground: oklch(0.708 0 0);
+    --accent: oklch(0.269 0 0);
+    --accent-foreground: oklch(0.985 0 0);
+    --destructive: oklch(0.396 0.141 25.723);
+    --destructive-foreground: oklch(0.637 0.237 25.331);
+    --border: oklch(0.269 0 0);
+    --input: oklch(0.269 0 0);
+    --ring: oklch(0.439 0 0);
+}
+
+/*
+ * Site-level theme presets. The admin editor writes these values to
+ * SiteSetting::site; the small bridge in app.tsx applies the data attributes
+ * at runtime. These are the same semantic tokens consumed by shadcn
+ * components, so changing a preset updates buttons, borders, cards, inputs,
+ * focus rings and muted surfaces together.
+ */
+[data-marketing-site][data-theme-preset='blue'] {
+    --primary: oklch(0.55 0.22 260);
+    --primary-foreground: oklch(0.985 0 0);
+    --accent: oklch(0.95 0.04 260);
+    --accent-foreground: oklch(0.25 0.08 260);
+    --ring: oklch(0.55 0.22 260);
+}
+
+[data-marketing-site].dark[data-theme-preset='blue'] {
+    --primary: oklch(0.72 0.17 260);
+    --primary-foreground: oklch(0.16 0.04 260);
+    --accent: oklch(0.28 0.08 260);
+    --accent-foreground: oklch(0.95 0.04 260);
+    --ring: oklch(0.65 0.16 260);
+}
+
+[data-marketing-site][data-theme-preset='emerald'] {
+    --primary: oklch(0.55 0.16 160);
+    --primary-foreground: oklch(0.985 0 0);
+    --accent: oklch(0.94 0.05 160);
+    --accent-foreground: oklch(0.24 0.07 160);
+    --ring: oklch(0.55 0.16 160);
+}
+
+[data-marketing-site].dark[data-theme-preset='emerald'] {
+    --primary: oklch(0.72 0.14 160);
+    --primary-foreground: oklch(0.14 0.04 160);
+    --accent: oklch(0.27 0.07 160);
+    --accent-foreground: oklch(0.94 0.05 160);
+    --ring: oklch(0.64 0.13 160);
+}
+
+[data-marketing-site][data-theme-preset='amber'] {
+    --primary: oklch(0.62 0.17 75);
+    --primary-foreground: oklch(0.2 0.05 75);
+    --accent: oklch(0.95 0.06 85);
+    --accent-foreground: oklch(0.28 0.08 75);
+    --ring: oklch(0.62 0.17 75);
+}
+
+[data-marketing-site].dark[data-theme-preset='amber'] {
+    --primary: oklch(0.78 0.16 85);
+    --primary-foreground: oklch(0.22 0.06 75);
+    --accent: oklch(0.3 0.08 75);
+    --accent-foreground: oklch(0.95 0.06 85);
+    --ring: oklch(0.7 0.15 80);
+}
+
+[data-marketing-site][data-theme-preset='rose'] {
+    --primary: oklch(0.58 0.2 10);
+    --primary-foreground: oklch(0.985 0 0);
+    --accent: oklch(0.95 0.04 10);
+    --accent-foreground: oklch(0.3 0.08 10);
+    --ring: oklch(0.58 0.2 10);
+}
+
+[data-marketing-site].dark[data-theme-preset='rose'] {
+    --primary: oklch(0.72 0.17 10);
+    --primary-foreground: oklch(0.2 0.05 10);
+    --accent: oklch(0.3 0.08 10);
+    --accent-foreground: oklch(0.95 0.04 10);
+    --ring: oklch(0.66 0.15 10);
+}
+
+[data-marketing-site][data-theme-preset='violet'] {
+    --primary: oklch(0.55 0.22 300);
+    --primary-foreground: oklch(0.985 0 0);
+    --accent: oklch(0.95 0.04 300);
+    --accent-foreground: oklch(0.28 0.08 300);
+    --ring: oklch(0.55 0.22 300);
+}
+
+[data-marketing-site].dark[data-theme-preset='violet'] {
+    --primary: oklch(0.72 0.18 300);
+    --primary-foreground: oklch(0.18 0.05 300);
+    --accent: oklch(0.29 0.08 300);
+    --accent-foreground: oklch(0.95 0.04 300);
+    --ring: oklch(0.66 0.16 300);
+}
+
+/* Marketing-only overrides. The wrapper boundary keeps these values out of
+ * the admin workspace and account settings. */
+[data-marketing-site] h1 {
+    color: var(--marketing-heading, var(--foreground));
+}
+[data-marketing-site] h2 {
+    color: var(--marketing-heading-secondary, var(--foreground));
+}
+[data-marketing-site] h3 {
+    color: var(--marketing-heading-tertiary, var(--foreground));
+}
+[data-marketing-site] a:not([data-slot='button']) {
+    color: var(--marketing-link, inherit);
+}
+[data-marketing-site] a:not([data-slot='button']):hover {
+    color: var(--marketing-link-hover, inherit);
+}
+
+/* Keep the public controls on the same explicit ShadCN defaults regardless
+ * of the account theme that happens to be active on html. */
+[data-marketing-site] [data-slot='input'] {
+    background-color: transparent;
+}
+[data-marketing-site] [data-slot='button'][data-variant='default'] {
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+}
+[data-marketing-site] [data-slot='button'][data-variant='outline'] {
+    background-color: var(--background);
+    color: var(--foreground);
+}
+[data-marketing-site] [data-slot='button'][data-variant='outline']:hover {
+    background-color: var(--muted);
+    color: var(--foreground);
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+
+    body {
+        @apply bg-background text-foreground;
+    }
+}
+
+@layer components {
+    /*
+     * Frozen columns in the estimator grids are sticky, so they sit on top of the columns
+     * scrolling underneath them and their background must stay fully opaque. The row's own hover
+     * tint (bg-muted/50) is translucent — applying it here would let that scrolling content show
+     * straight through the frozen cells — so the same colour is pre-composited over the background
+     * into an opaque one. Scoped to tbody so the header row, which never highlights, is unaffected.
+     */
+    .frozen-cell {
+        background-color: var(--background);
+    }
+    tbody tr:hover .frozen-cell {
+        background-color: color-mix(
+            in oklch,
+            var(--muted) 50%,
+            var(--background)
+        );
+    }
+
+    /*
+     * Separators marking where a frozen edge ends and the scrolling content begins. Drawn as inset
+     * shadows rather than borders because a collapsed table border belongs to the table grid, not
+     * to the cell: it stays behind in the flow instead of travelling with the sticky cell, which is
+     * why the header row's own border-b vanishes the moment it pins. A shadow always paints against
+     * the cell's own translated box, and unlike a border it adds nothing to the column's width.
+     */
+    .frozen-edge-x {
+        box-shadow: inset -1px 0 0 0 var(--border);
+    }
+    .frozen-edge-y {
+        box-shadow: inset 0 -1px 0 0 var(--border);
+    }
+    .frozen-edge-corner {
+        box-shadow:
+            inset -1px 0 0 0 var(--border),
+            inset 0 -1px 0 0 var(--border);
+    }
+}

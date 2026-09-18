@@ -1,0 +1,296 @@
+[
+    {
+        "slug": "immigration",
+        "name": "Immigration",
+        "headline": "Corporate Immigration Support Across Africa",
+        "metaTitle": "Corporate Immigration Services in Africa | Relocation Africa",
+        "metaDescription": "Corporate immigration support across Africa for visas, work permits, residence, compliance, document preparation and renewals.",
+        "intro": [
+            "Cross-border employment brings opportunity, and complex immigration responsibilities with it.",
+            "Relocation Africa supports corporate and multinational clients with practical, locally informed immigration coordination for employees moving into African jurisdictions."
+        ],
+        "countries": [],
+        "scope": [
+            {
+                "heading": "Plan, Apply and Stay Compliant",
+                "intro": "Our immigration specialists help manage the process from early planning to application tracking, renewal management and local compliance support.",
+                "items": [
+                    "Needs assessment and process planning",
+                    "Visa and work-permit guidance",
+                    "Document preparation",
+                    "Legalisation, apostille and translation coordination",
+                    "Application tracking",
+                    "Renewal management",
+                    "Residence and local-registration support",
+                    "Compliance reviews",
+                    "Consular services"
+                ]
+            }
+        ],
+        "featuredPrimary": [
+            "Business visas",
+            "Work permits",
+            "Residence permits",
+            "Visa renewals",
+            "Immigration compliance support",
+            "Document legalisation and translation"
+        ],
+        "faqs": [
+            {
+                "question": "When should immigration planning begin?",
+                "answer": "Begin as early as possible. Timelines, documentation and approvals vary by destination, role and immigration category."
+            },
+            {
+                "question": "Can Relocation Africa coordinate multi-country immigration cases?",
+                "answer": "Yes. We support clients with African immigration requirements through a coordinated, location-aware approach."
+            },
+            {
+                "question": "Can you guarantee a visa or permit outcome?",
+                "answer": "No provider can guarantee an authority's decision. We help clients prepare complete, accurate applications and manage the process carefully."
+            }
+        ],
+        "ctaText": "Let's discuss your requirements",
+        "ctaButtonLabel": "Request a consultation",
+        "ctaLink": "/contact"
+    },
+    {
+        "slug": "mobility",
+        "name": "Mobility",
+        "headline": "Corporate Relocation and Destination Services Across Africa",
+        "metaTitle": "Corporate Relocation & Destination Services Across Africa | Relocation Africa",
+        "metaDescription": "Corporate relocation and destination services across Africa, including home search, school search, settling-in and departure support.",
+        "intro": [
+            "Relocation Africa helps employees and their families settle into new African destinations with clarity and confidence.",
+            "Our destination services combine local knowledge, practical coordination and personal support, helping assignees become effective in their new environment sooner."
+        ],
+        "countries": [],
+        "scope": [
+            {
+                "heading": "Plan the Move",
+                "intro": "We start with a clear needs assessment, local guidance and a coordinated plan shaped around the assignee, the family and employer policy.",
+                "items": [
+                    "Needs assessment",
+                    "Policy guidance",
+                    "Pre-departure briefing",
+                    "Destination information",
+                    "Itinerary planning",
+                    "Supplier coordination"
+                ]
+            },
+            {
+                "heading": "Settle In With Confidence",
+                "intro": "Our local teams support the practical choices that make a new destination feel manageable.",
+                "items": [
+                    "Area orientation",
+                    "Home search",
+                    "School search",
+                    "Temporary accommodation",
+                    "Settling-in support",
+                    "Local registrations and utilities"
+                ]
+            }
+        ],
+        "featuredPrimary": [
+            "Home search and tenancy support",
+            "Area orientation",
+            "Education support",
+            "Settling-in services",
+            "Departure support",
+            "Family transition support"
+        ],
+        "faqs": [
+            {
+                "question": "What does destination support include?",
+                "answer": "Services are tailored to the assignee's needs and employer policy. They can include orientation, home and school search, temporary accommodation, local registrations, settling-in and departure support."
+            },
+            {
+                "question": "Can you support families as well as employees?",
+                "answer": "Yes. Family needs are central to a successful assignment, and our support can include schooling, neighbourhood guidance, partner considerations and practical settling-in assistance."
+            },
+            {
+                "question": "Do you support moves within Africa and from outside Africa?",
+                "answer": "We support destination services for moves into, within and out of African locations, subject to local availability and programme requirements."
+            }
+        ],
+        "ctaText": "Let's discuss your requirements",
+        "ctaButtonLabel": "Request a consultation",
+        "ctaLink": "/contact"
+    },
+    {
+        "slug": "remuneration",
+        "name": "Remuneration",
+        "headline": "Remuneration Solutions for African Assignments",
+        "metaTitle": "African Payroll, Expense Management & Expatriate Tax | Relocation Africa",
+        "metaDescription": "Integrated African payroll, payments, expense management and expatriate tax support for multinational employers.",
+        "intro": [
+            "Relocation Africa helps employers manage the financial side of international assignments with greater visibility and control.",
+            "Our remuneration services include African payroll, payments, expense management and expatriate tax support."
+        ],
+        "countries": [],
+        "scope": [
+            {
+                "heading": "African Payroll",
+                "intro": "Coordinated payroll administration, reporting and payment processes designed for multi-country operations.",
+                "items": []
+            },
+            {
+                "heading": "African Payments",
+                "intro": "Practical administration and reconciliation of relocation-related supplier and assignee payments.",
+                "items": []
+            },
+            {
+                "heading": "Expense Management",
+                "intro": "Clearer tracking, approval and reporting of assignment-related expenses.",
+                "items": []
+            },
+            {
+                "heading": "Expatriate Tax and Payroll Advisory",
+                "intro": "Support for assignment structuring, tax considerations and payroll compliance in partnership with relevant specialists.",
+                "items": []
+            }
+        ],
+        "featuredPrimary": [
+            "African payroll administration",
+            "Assignment and supplier payments",
+            "Expense tracking and reporting",
+            "Expatriate tax coordination",
+            "Payroll compliance support",
+            "Assignment cost reporting"
+        ],
+        "faqs": [
+            {
+                "question": "Can you support payroll across multiple African countries?",
+                "answer": "Yes. We support payroll coordination for multi-country operations. The countries in scope for your programme are confirmed during consultation."
+            },
+            {
+                "question": "Can you manage relocation-related payments?",
+                "answer": "We can support the administration, tracking and reconciliation of approved relocation-related payments."
+            },
+            {
+                "question": "Do you provide legal or tax advice?",
+                "answer": "Requirements depend on the assignment and jurisdiction. We coordinate with appropriate specialists and support the operational delivery of the agreed solution."
+            }
+        ],
+        "ctaText": "Let's discuss your requirements",
+        "ctaButtonLabel": "Request a consultation",
+        "ctaLink": "/contact"
+    },
+    {
+        "slug": "research",
+        "name": "Research",
+        "headline": "African Mobility Data for Better Decisions",
+        "metaTitle": "African Cost of Living, Housing & Education Research | Relocation Africa",
+        "metaDescription": "African relocation research for cost of living, housing, education and vehicle data, supporting confident mobility and remuneration decisions.",
+        "intro": [
+            "Good mobility decisions depend on current, local information.",
+            "Relocation Africa provides research that helps organisations budget accurately, design workable policies and understand the practical realities employees will face in African destinations."
+        ],
+        "countries": [],
+        "scope": [
+            {
+                "heading": "Cost of Living Analysis",
+                "intro": "Compare home- and host-location costs to support assignment budgeting and policy decisions.",
+                "items": []
+            },
+            {
+                "heading": "Housing Surveys",
+                "intro": "Understand rental levels, lease practices, preferred areas and local housing considerations.",
+                "items": []
+            },
+            {
+                "heading": "Education Surveys",
+                "intro": "Assess schooling options, curricula, availability and location factors for relocating families.",
+                "items": []
+            },
+            {
+                "heading": "Vehicle and Transport Research",
+                "intro": "Access current information on vehicle pricing, servicing and transport conditions.",
+                "items": []
+            }
+        ],
+        "featuredPrimary": [
+            "Cost of living reports",
+            "Housing surveys",
+            "Education surveys",
+            "Vehicle and transport research",
+            "Policy benchmarking support",
+            "Assignment budgeting data"
+        ],
+        "faqs": [
+            {
+                "question": "Can research be tailored to our policy or assignee profile?",
+                "answer": "Yes. We scope research around the questions, locations and decision criteria that matter to your organisation."
+            },
+            {
+                "question": "How current is the data?",
+                "answer": "African markets can shift quickly. We draw on in-country research and confirm the relevant timeframe for each assignment."
+            },
+            {
+                "question": "Who uses this research?",
+                "answer": "Global HR, compensation, mobility and finance teams use it to support budgeting, policy design and employee decision-making."
+            }
+        ],
+        "ctaText": "Let's discuss your requirements",
+        "ctaButtonLabel": "Request a consultation",
+        "ctaLink": "/contact"
+    },
+    {
+        "slug": "training",
+        "name": "Training",
+        "headline": "Training for Confident Cross-Cultural Work",
+        "metaTitle": "Cross-Cultural & Global Mobility Training in Africa | Relocation Africa",
+        "metaDescription": "Cross-cultural, diversity and language training to help assignees and global teams work effectively across African markets.",
+        "intro": [
+            "A successful assignment is not only about arriving in the right place. It is about helping people work, communicate and belong in a new environment.",
+            "Our training services prepare assignees, families and teams for the cultural realities of international work."
+        ],
+        "countries": [],
+        "scope": [
+            {
+                "heading": "Cross-Cultural Preparation",
+                "intro": "Practical preparation for assignees and families before and after a move.",
+                "items": []
+            },
+            {
+                "heading": "Diversity and Team Effectiveness",
+                "intro": "Workshops that help diverse teams communicate, collaborate and make the most of different perspectives.",
+                "items": []
+            },
+            {
+                "heading": "Language Training",
+                "intro": "Flexible language support for assignees and families, shaped around their destination and needs.",
+                "items": []
+            },
+            {
+                "heading": "Coaching and Reintegration",
+                "intro": "Support for transition, leadership and the return home after an international assignment.",
+                "items": []
+            }
+        ],
+        "featuredPrimary": [
+            "Cross-cultural preparation",
+            "Diversity and team effectiveness",
+            "Language training",
+            "Coaching and reintegration",
+            "Partner and family support",
+            "Team workshops"
+        ],
+        "faqs": [
+            {
+                "question": "Who is the training designed for?",
+                "answer": "Assignees, their families and the teams they join. Sessions are shaped around the destination, the role and the people taking part."
+            },
+            {
+                "question": "Can training be delivered before departure?",
+                "answer": "Yes. Preparation before a move helps assignees and families arrive with realistic expectations, and follow-up support can continue after arrival."
+            },
+            {
+                "question": "Can sessions be delivered remotely?",
+                "answer": "Delivery is arranged to suit the participants and the assignment, including remote sessions where that works best."
+            }
+        ],
+        "ctaText": "Let's discuss your requirements",
+        "ctaButtonLabel": "Request a consultation",
+        "ctaLink": "/contact"
+    }
+]
