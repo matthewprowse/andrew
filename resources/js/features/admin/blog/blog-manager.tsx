@@ -63,6 +63,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { DatePicker } from '@/components/admin/date-picker';
+import { RelatedServicesField } from '@/components/admin/related-services-field';
 import {
     MediaPicker,
     type MediaPickerValue,
@@ -653,32 +654,15 @@ export function BlogManager({
                                 }
                             />
                         </Field>
-                        <div className="grid gap-2">
-                            <Label>Related Services</Label>
-                            <ToggleGroup
-                                type="multiple"
-                                variant="outline"
-                                value={draft.serviceIds}
-                                onValueChange={(value) =>
-                                    updateDraft('serviceIds', value)
-                                }
-                                className="flex-wrap justify-start gap-1.5"
-                            >
-                                {services.map((service) => (
-                                    <ToggleGroupItem
-                                        key={service.id}
-                                        value={service.id}
-                                        className="data-[state=on]:bg-accent rounded-md border px-3 text-sm"
-                                    >
-                                        {service.name}
-                                    </ToggleGroupItem>
-                                ))}
-                            </ToggleGroup>
-                            <p className="text-muted-foreground text-sm">
-                                Shown as a relevant post on each selected
-                                service's public page.
-                            </p>
-                        </div>
+                        <RelatedServicesField
+                            services={services}
+                            value={draft.serviceIds}
+                            onChange={(value) =>
+                                updateDraft('serviceIds', value)
+                            }
+                            description="Shown as a relevant post on each selected service's public page."
+                            error={errors.serviceIds}
+                        />
                         <div className="grid gap-2">
                             <Label htmlFor="blog-author">Author</Label>
                             <Input

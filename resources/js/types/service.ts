@@ -16,6 +16,13 @@ export type ServiceRecord = {
     cta_description: string;
     cta_button_label: string;
     cta_link: string;
+    contact_fields: {
+        key: string;
+        label: string;
+        type: 'text' | 'email' | 'tel' | 'textarea';
+        required?: boolean;
+        placeholder?: string;
+    }[];
     sort_order: number;
     updatedAt: string;
     status: 'Draft' | 'Live';

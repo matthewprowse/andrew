@@ -34,13 +34,13 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
 import {
     Popover,
     PopoverContent,
     PopoverTrigger,
 } from '@/components/ui/popover';
 import { DatePicker } from '@/components/admin/date-picker';
+import { RelatedServicesField } from '@/components/admin/related-services-field';
 import type { FaqRecord } from '@/types/faq';
 import { formatAdminDate } from '@/lib/format-admin-date';
 
@@ -304,49 +304,15 @@ export function FaqManager({
                             />
                             <Error value={form.errors.answer} />
                         </label>
-                        <div className="grid gap-2">
-                            <Label>Related Services</Label>
-                            <div className="grid gap-2 rounded-md border p-3 sm:grid-cols-2">
-                                {services.map((service) => {
-                                    const checked =
-                                        form.data.serviceIds.includes(
-                                            service.id,
-                                        );
-                                    return (
-                                        <label
-                                            key={service.id}
-                                            className="flex items-center gap-2 text-sm"
-                                        >
-                                            <Checkbox
-                                                checked={checked}
-                                                onCheckedChange={(value) =>
-                                                    form.setData(
-                                                        'serviceIds',
-                                                        value === true
-                                                            ? [
-                                                                  ...form.data
-                                                                      .serviceIds,
-                                                                  service.id,
-                                                              ]
-                                                            : form.data.serviceIds.filter(
-                                                                  (id) =>
-                                                                      id !==
-                                                                      service.id,
-                                                              ),
-                                                    )
-                                                }
-                                            />
-                                            {service.name}
-                                        </label>
-                                    );
-                                })}
-                            </div>
-                            <p className="text-muted-foreground text-sm">
-                                Select any services where this FAQ should
-                                appear.
-                            </p>
-                            <Error value={form.errors.serviceIds} />
-                        </div>
+                        <RelatedServicesField
+                            services={services}
+                            value={form.data.serviceIds}
+                            onChange={(value) =>
+                                form.setData('serviceIds', value)
+                            }
+                            description="Select the services where this FAQ should appear."
+                            error={form.errors.serviceIds}
+                        />
                         <div className="grid gap-4 sm:grid-cols-2">
                             <label className="grid gap-2">
                                 <Label>Status</Label>

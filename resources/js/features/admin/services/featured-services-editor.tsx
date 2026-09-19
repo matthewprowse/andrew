@@ -10,6 +10,7 @@ import {
     AdminDialogHeader,
 } from '@/components/admin/admin-dialog';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/ui/data-table';
 import { Dialog, DialogClose } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -34,17 +35,6 @@ const featuredServiceColumnHelper = createColumnHelper<
 const featuredServiceColumns = featuredServiceColumnHelper.columns([
     featuredServiceColumnHelper.accessor('name', {
         header: 'Featured Service',
-    }),
-    featuredServiceColumnHelper.accessor('description', {
-        header: 'Description',
-        cell: (info) => info.getValue() || '—',
-    }),
-    featuredServiceColumnHelper.accessor('resourceCount', {
-        header: 'Related Resources',
-        cell: (info) => {
-            const count = info.getValue();
-            return count === 0 ? 'None linked' : `${count} linked`;
-        },
     }),
 ]);
 const resourceTableFeatures = tableFeatures({});
@@ -133,23 +123,6 @@ export function FeaturedServicesEditor({
                         );
                     },
                 }),
-                resourceColumnHelper.display({
-                    id: 'image',
-                    header: '',
-                    cell: ({ row }) =>
-                        row.original.image ? (
-                            <img
-                                src={row.original.image.url}
-                                alt=""
-                                className="size-10 rounded object-cover"
-                            />
-                        ) : (
-                            <div
-                                className="bg-muted size-10 rounded"
-                                aria-hidden="true"
-                            />
-                        ),
-                }),
                 resourceColumnHelper.accessor('title', {
                     header: 'Title',
                     cell: (info) => titleCase(info.getValue()),
@@ -157,7 +130,9 @@ export function FeaturedServicesEditor({
                 resourceColumnHelper.accessor('categoryTitle', {
                     header: 'Type',
                     cell: (info) =>
-                        titleCase(info.getValue() || 'Uncategorised'),
+                        <Badge variant="secondary">
+                            {titleCase(info.getValue() || 'Uncategorised')}
+                        </Badge>,
                 }),
             ]),
         [draft.resource_ids],
@@ -204,7 +179,13 @@ export function FeaturedServicesEditor({
 
     return (
         <div className="space-y-4">
-            <div className="flex justify-end">
+            <div className="flex items-start justify-between gap-4">
+                <div>
+                    <h3 className="text-sm font-medium">Featured Services</h3>
+                    <p className="text-muted-foreground mt-0.5 text-xs">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                    </p>
+                </div>
                 <Button type="button" variant="secondary" onClick={openNew}>
                     New Service
                 </Button>
@@ -212,6 +193,7 @@ export function FeaturedServicesEditor({
             <DataTable
                 table={featuredServiceTable}
                 onRowClick={(row) => openEdit(featuredServiceRows.indexOf(row))}
+                showHeader={false}
             />
             <Dialog
                 open={dialogIndex !== null}
@@ -219,7 +201,7 @@ export function FeaturedServicesEditor({
                     if (!open) close();
                 }}
             >
-                <AdminDialogContent className="sm:max-w-lg">
+                <AdminDialogContent className="sm:max-w-2xl">
                     <AdminDialogHeader
                         title={
                             dialogIndex === 'new'
@@ -242,12 +224,10 @@ export function FeaturedServicesEditor({
                             />
                         </div>
                         <div className="space-y-3">
-                            <div>
-                                <Label>Related resources</Label>
-                            </div>
                             {resourceOptions.length > 0 ? (
                                 <DataTable
                                     table={resourceTable}
+                                    showHeader={false}
                                     rowClassName={(resource) =>
                                         (draft.resource_ids ?? []).includes(
                                             Number(resource.id),

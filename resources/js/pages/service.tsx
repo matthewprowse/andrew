@@ -1,7 +1,9 @@
 import { Link } from '@inertiajs/react';
+import { useState } from 'react';
 import { formatPublishDate } from '@/data/blog-posts';
 import { PageMeta } from '@/components/page-meta';
 import { PersistentContactButton } from '@/components/persistent-contact-button';
+import { ServiceContactDialog } from '@/components/service-contact-dialog';
 import { ResourceActionButton } from '@/pages/resource';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
@@ -79,7 +81,12 @@ export default function ServicePage({
     relevantPosts: RelevantPost[];
     resources: ResourceItemRecord[];
 }) {
+    const [contactOpen, setContactOpen] = useState(false);
     const featuredServices = s.featured_services ?? [];
+    const consultationLabel = s.cta_button_label || 'Request Consultation';
+    const consultationHelper =
+        s.cta_description ||
+        'Request a consultation and our team will be in touch.';
     const bannerImageUrl = s.bannerImageUrl || s.banner_image;
     const bannerImageAlt = s.bannerImageAlt || `${s.name} service banner`;
     const hasSidebar =
@@ -104,20 +111,15 @@ export default function ServicePage({
                     <p className="text-muted-foreground mt-5 text-lg leading-8 whitespace-pre-line">
                         {s.intro}
                     </p>
-                    {s.cta_link && s.cta_button_label && (
-                        <Button asChild className="mt-6">
-                            <a
-                                href={s.cta_link}
-                                onClick={() =>
-                                    trackEvent('cta_click', {
-                                        label: s.cta_button_label,
-                                        serviceId: s.id,
-                                    })
-                                }
-                            >
-                                {s.cta_button_label}
-                            </a>
-                        </Button>
+                    {s.cta_link && (
+                        <div className="mt-6">
+                            <p className="text-muted-foreground mb-2 text-sm">
+                                {consultationHelper}
+                            </p>
+                            <Button onClick={() => { setContactOpen(true); trackEvent('cta_click', { label: consultationLabel, serviceId: s.id }); }}>
+                                {consultationLabel}
+                            </Button>
+                        </div>
                     )}
                 </section>
                 <section className="overflow-hidden rounded-xl">
@@ -265,30 +267,18 @@ export default function ServicePage({
                     </div>
                 )}
                 <TestimonialSection testimonials={testimonials} />
-                {s.cta_link && s.cta_button_label && (
+                {s.cta_link && (
                     <section className="text-center">
                         {s.cta_text && (
                             <h2 className="text-2xl font-medium">
                                 {s.cta_text}
                             </h2>
                         )}
-                        {s.cta_description && (
-                            <p className="text-muted-foreground mx-auto mt-3 max-w-2xl whitespace-pre-line">
-                                {s.cta_description}
-                            </p>
-                        )}
-                        <Button asChild className="mt-6">
-                            <a
-                                href={s.cta_link}
-                                onClick={() =>
-                                    trackEvent('cta_click', {
-                                        label: s.cta_button_label,
-                                        serviceId: s.id,
-                                    })
-                                }
-                            >
-                                {s.cta_button_label}
-                            </a>
+                        <p className="text-muted-foreground mx-auto mt-3 max-w-2xl whitespace-pre-line">
+                            {consultationHelper}
+                        </p>
+                        <Button className="mt-6" onClick={() => { setContactOpen(true); trackEvent('cta_click', { label: consultationLabel, serviceId: s.id }); }}>
+                            {consultationLabel}
                         </Button>
                     </section>
                 )}
@@ -296,8 +286,18 @@ export default function ServicePage({
             <SiteFooter />
             <PersistentContactButton
                 href={s.cta_link}
-                label={s.cta_button_label}
+                label={consultationLabel}
                 serviceId={s.id}
+                serviceName={s.name}
+                contactFields={s.contact_fields}
+            />
+            <ServiceContactDialog
+                open={contactOpen}
+                onOpenChange={setContactOpen}
+                serviceId={s.id}
+                serviceName={s.name}
+                buttonLabel={consultationLabel}
+                fields={s.contact_fields}
             />
         </>
     );

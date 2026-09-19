@@ -16,6 +16,8 @@ class Lead extends Model
         'email',
         'subject',
         'message',
+        'service_id',
+        'custom_fields',
         'submitted_at',
         'anonymized_at',
     ];
@@ -26,6 +28,8 @@ class Lead extends Model
             'handled' => 'boolean',
             'submitted_at' => 'datetime',
             'anonymized_at' => 'datetime',
+            'service_id' => 'integer',
+            'custom_fields' => 'array',
         ];
     }
 

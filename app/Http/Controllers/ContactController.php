@@ -7,6 +7,7 @@ use App\Models\Career;
 use App\Models\Lead;
 use App\Models\Location;
 use App\Models\Page;
+use App\Models\Service;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -62,6 +63,13 @@ class ContactController extends Controller
             'type' => 'success',
             'message' => __("Thanks — we've received your message and will be in touch soon."),
         ]);
+
+        if ($request->filled('service_id')) {
+            $service = Service::query()->find($request->integer('service_id'));
+            if ($service) {
+                return to_route('services.show', ['slug' => $service->slug]);
+            }
+        }
 
         return to_route('contact.show');
     }

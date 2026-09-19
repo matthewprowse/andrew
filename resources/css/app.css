@@ -8,7 +8,7 @@
 @source '../views';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 
-@custom-variant dark (&:is([data-app-dark] *:not([data-marketing-site], [data-marketing-site] *), [data-marketing-site].dark *));
+@custom-variant dark (&:is([data-app-dark] *:not([data-marketing-site], [data-marketing-site] *), [data-marketing-site].dark *, :root[data-marketing-dark] *));
 
 @theme {
     --font-sans:
@@ -140,6 +140,41 @@
  * public site. This is intentionally complete: marketing must not inherit
  * the account/admin dark-mode variables from html. */
 [data-marketing-site] {
+    /* Tailwind utilities read the generated --color-* aliases. They must be
+     * re-bound on this element because a root custom property is inherited
+     * after var(--primary) has already been resolved. */
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+    --color-chart-5: var(--chart-5);
+    --color-sidebar: var(--sidebar);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-ring: var(--sidebar-ring);
     --background: oklch(1 0 0);
     --foreground: oklch(0.145 0 0);
     --card: oklch(1 0 0);
@@ -286,24 +321,6 @@
 }
 [data-marketing-site] a:not([data-slot='button']):hover {
     color: var(--marketing-link-hover, inherit);
-}
-
-/* Keep the public controls on the same explicit ShadCN defaults regardless
- * of the account theme that happens to be active on html. */
-[data-marketing-site] [data-slot='input'] {
-    background-color: transparent;
-}
-[data-marketing-site] [data-slot='button'][data-variant='default'] {
-    background-color: var(--primary);
-    color: var(--primary-foreground);
-}
-[data-marketing-site] [data-slot='button'][data-variant='outline'] {
-    background-color: var(--background);
-    color: var(--foreground);
-}
-[data-marketing-site] [data-slot='button'][data-variant='outline']:hover {
-    background-color: var(--muted);
-    color: var(--foreground);
 }
 
 @layer base {

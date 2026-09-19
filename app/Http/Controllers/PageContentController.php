@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Exceptions\PageRevisionConflictException;
 use App\Http\Requests\SavePageContentRequest;
-use App\Models\AuditLog;
 use App\Models\Page;
 use App\Models\PageRevision;
 use App\Services\PagePublishingService;
+use App\Services\PagePublishingWorkflow;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -20,7 +19,10 @@ class PageContentController extends Controller
     // controller's slugs.
     public const SLUGS = ['contact', 'locations'];
 
-    public function __construct(private readonly PagePublishingService $publishing) {}
+    public function __construct(
+        private readonly PagePublishingService $publishing,
+        private readonly PagePublishingWorkflow $publishingWorkflow,
+    ) {}
 
     /**
      * PUB-01 (docs/ADMIN_UX_SEO_BUILD_PLAN.md §Phase 5 batch 5B):
@@ -84,21 +86,7 @@ class PageContentController extends Controller
             ? (int) $data['base_revision_id']
             : null;
 
-        try {
-            $revision = $this->publishing->saveDraft($page, $snapshot, $baseRevisionId, $request->user()?->id);
-        } catch (PageRevisionConflictException $exception) {
-            return $this->conflictResponse($page, $exception->current);
-        }
-
-        AuditLog::record('draft_saved', 'page', $page->id, ['slug' => $slug, 'revision_id' => $revision->id]);
-
-        return response()->json([
-            'conflict' => false,
-            'baseRevisionId' => $revision->id,
-            'hasUnpublishedChanges' => true,
-            'content' => $this->publishing->applySnapshot($page, $revision->snapshot)->adminData(),
-            'revisions' => $this->publishing->history($page)->map(fn (PageRevision $r) => $r->historyData())->values(),
-        ]);
+        return $this->publishingWorkflow->saveDraft($page, $slug, $snapshot, $baseRevisionId, $request->user()?->id);
     }
 
     /**
@@ -109,19 +97,7 @@ class PageContentController extends Controller
     public function publish(Request $request, string $slug): JsonResponse
     {
         $page = $this->find($slug);
-        $revision = $this->publishing->publish($page, $request->user()?->id);
-
-        if (! $revision) {
-            return response()->json(['message' => 'There is no draft to publish.'], 422);
-        }
-
-        AuditLog::record('published', 'page', $page->id, ['slug' => $slug, 'revision_id' => $revision->id]);
-
-        return response()->json([
-            'hasUnpublishedChanges' => false,
-            'content' => $page->refresh()->adminData(),
-            'revisions' => $this->publishing->history($page)->map(fn (PageRevision $r) => $r->historyData())->values(),
-        ]);
+        return $this->publishingWorkflow->publish($page, $slug, $request->user()?->id);
     }
 
     /**
@@ -137,17 +113,7 @@ class PageContentController extends Controller
     public function restoreAsDraft(Request $request, string $slug, PageRevision $revision): JsonResponse
     {
         $page = $this->find($slug);
-        $restored = $this->publishing->restoreAsDraft($page, $revision->id, $request->user()?->id);
-        abort_if($restored === null, 404);
-
-        AuditLog::record('restored_as_draft', 'page', $page->id, ['slug' => $slug, 'source_revision_id' => $revision->id, 'revision_id' => $restored->id]);
-
-        return response()->json([
-            'baseRevisionId' => $restored->id,
-            'hasUnpublishedChanges' => true,
-            'content' => $this->publishing->applySnapshot($page, $restored->snapshot)->adminData(),
-            'revisions' => $this->publishing->history($page)->map(fn (PageRevision $r) => $r->historyData())->values(),
-        ]);
+        return $this->publishingWorkflow->restoreAsDraft($page, $slug, $revision, $request->user()?->id);
     }
 
     public function find(string $slug): Page
@@ -205,18 +171,4 @@ class PageContentController extends Controller
         return $updates;
     }
 
-    private function conflictResponse(Page $page, ?PageRevision $current): JsonResponse
-    {
-        return response()->json([
-            'conflict' => true,
-            'message' => 'This page was changed by someone else since you started editing. Review the differences below, then save again if you still want your changes.',
-            'current' => $current ? [
-                'revisionId' => $current->id,
-                'status' => $current->status,
-                'authorName' => $current->author->name ?? ($current->author_id ? 'Deleted user' : 'System'),
-                'updatedAt' => $current->created_at?->toIso8601String(),
-                'content' => $this->publishing->applySnapshot($page, $current->snapshot)->adminData(),
-            ] : null,
-        ], 409);
-    }
 }

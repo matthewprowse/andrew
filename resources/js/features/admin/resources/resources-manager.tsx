@@ -46,6 +46,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { CurrencyInput } from '@/components/ui/currency-input';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import Heading from '@/components/heading';
+import { RelatedServicesField } from '@/components/admin/related-services-field';
 import {
     Card,
     CardAction,
@@ -528,32 +529,15 @@ export function ResourcesManager({
                                 }
                             />
                         )}
-                        <div className="grid gap-2">
-                            <Label>Related Services</Label>
-                            <ToggleGroup
-                                type="multiple"
-                                variant="outline"
-                                value={draft.serviceIds}
-                                onValueChange={(value) =>
-                                    updateDraft('serviceIds', value)
-                                }
-                                className="flex-wrap justify-start gap-1.5"
-                            >
-                                {services.map((service) => (
-                                    <ToggleGroupItem
-                                        key={service.id}
-                                        value={service.id}
-                                        className="data-[state=on]:bg-accent rounded-md border px-3 text-sm"
-                                    >
-                                        {service.name}
-                                    </ToggleGroupItem>
-                                ))}
-                            </ToggleGroup>
-                            <p className="text-muted-foreground text-sm">
-                                Select one or more services related to this
-                                item.
-                            </p>
-                        </div>
+                        <RelatedServicesField
+                            services={services}
+                            value={draft.serviceIds}
+                            onChange={(value) =>
+                                updateDraft('serviceIds', value)
+                            }
+                            description="Select one or more services related to this item."
+                            error={errors.serviceIds}
+                        />
                         <div className="grid gap-2">
                             <Label htmlFor="resource-access">Access</Label>
                             <Select

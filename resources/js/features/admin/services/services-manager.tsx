@@ -71,6 +71,7 @@ const empty = {
     cta_description: '',
     cta_button_label: 'Request Consultation',
     cta_link: '/contact',
+    contact_fields: [] as ServiceRecord['contact_fields'],
     sort_order: 0,
     status: 'Draft' as ServiceRecord['status'],
     rich_content: '',
@@ -172,6 +173,7 @@ export function ServicesManager({
                       ...service,
                       banner_media_id: service.banner_media_id ?? '',
                       featured_services: service.featured_services ?? [],
+                      contact_fields: service.contact_fields ?? [],
                       meta_title: service.metaTitle ?? '',
                       meta_description: service.metaDescription ?? '',
                   }
@@ -367,6 +369,53 @@ export function ServicesManager({
                             />
                         </div>
                     </div>
+                    <div className="space-y-3">
+                        <Separator />
+                        <div>
+                            <Label>Additional Form Fields</Label>
+                            <p className="text-muted-foreground mt-1 text-xs">
+                                Default contact fields always remain. Add service-specific questions here.
+                            </p>
+                        </div>
+                        {form.data.contact_fields.map((field, index) => (
+                            <div key={`${field.key}-${index}`} className="rounded-md border p-3">
+                                <div className="grid gap-3 sm:grid-cols-2">
+                                    <Input placeholder="Field label" value={field.label} onChange={(event) => { const fields = [...form.data.contact_fields]; fields[index] = { ...field, label: event.target.value }; form.setData('contact_fields', fields); }} />
+                                    <Input placeholder="field_key" value={field.key} onChange={(event) => { const fields = [...form.data.contact_fields]; fields[index] = { ...field, key: event.target.value.replace(/[^a-zA-Z0-9_-]/g, '_') }; form.setData('contact_fields', fields); }} />
+                                    <Select value={field.type} onValueChange={(value) => { const fields = [...form.data.contact_fields]; fields[index] = { ...field, type: value as typeof field.type }; form.setData('contact_fields', fields); }}>
+                                        <SelectTrigger><SelectValue /></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="text">Text</SelectItem>
+                                            <SelectItem value="email">Email</SelectItem>
+                                            <SelectItem value="tel">Phone</SelectItem>
+                                            <SelectItem value="textarea">Long answer</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <Input placeholder="Placeholder (optional)" value={field.placeholder ?? ''} onChange={(event) => { const fields = [...form.data.contact_fields]; fields[index] = { ...field, placeholder: event.target.value }; form.setData('contact_fields', fields); }} />
+                                </div>
+                                <div className="mt-3 flex items-center justify-between">
+                                    <Button
+                                        type="button"
+                                        size="sm"
+                                        variant={field.required ? 'secondary' : 'outline'}
+                                        onClick={() => {
+                                            const fields = [...form.data.contact_fields];
+                                            fields[index] = { ...field, required: !field.required };
+                                            form.setData('contact_fields', fields);
+                                        }}
+                                    >
+                                        {field.required ? 'Required' : 'Optional'}
+                                    </Button>
+                                    <Button type="button" variant="ghost" size="sm" onClick={() => form.setData('contact_fields', form.data.contact_fields.filter((_, fieldIndex) => fieldIndex !== index))}>
+                                        <h6>Delete</h6>
+                                    </Button>
+                                </div>
+                            </div>
+                        ))}
+                        <Button type="button" variant="outline" onClick={() => form.setData('contact_fields', [...form.data.contact_fields, { key: `question_${form.data.contact_fields.length + 1}`, label: '', type: 'text', required: false, placeholder: '' }])}>
+                            Add Form Field
+                        </Button>
+                    </div>
                 </>
             ),
         },
@@ -383,8 +432,6 @@ export function ServicesManager({
         },
         {
             key: 'featured-services',
-            label: 'Featured Services',
-            description: PAGE_DESCRIPTION,
             content: (
                 <FeaturedServicesEditor
                     value={form.data.featured_services}

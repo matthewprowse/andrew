@@ -1,16 +1,16 @@
-import { Form, Head } from '@inertiajs/react';
-import { useRef } from 'react';
-import SecurityController from '@/actions/App/Http/Controllers/Settings/SecurityController';
-import Heading from '@/components/heading';
-import InputError from '@/components/input-error';
-import PasswordInput from '@/components/password-input';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { edit } from '@/routes/security';
-import type { Props as ManagePasskeysProps } from '@/components/manage-passkeys';
-import ManagePasskeys from '@/components/manage-passkeys';
-import type { Props as ManageTwoFactorProps } from '@/components/manage-two-factor';
-import ManageTwoFactor from '@/components/manage-two-factor';
+import { Form, Head } from "@inertiajs/react";
+import { useRef } from "react";
+import SecurityController from "@/actions/App/Http/Controllers/Settings/SecurityController";
+import Heading from "@/components/heading";
+import InputError from "@/components/input-error";
+import PasswordInput from "@/components/password-input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { edit } from "@/routes/security";
+import type { Props as ManagePasskeysProps } from "@/components/manage-passkeys";
+import ManagePasskeys from "@/components/manage-passkeys";
+import type { Props as ManageTwoFactorProps } from "@/components/manage-two-factor";
+import ManageTwoFactor from "@/components/manage-two-factor";
 
 // oxfmt-ignore
 type Props = {
@@ -18,33 +18,30 @@ type Props = {
 } & ManagePasskeysProps &
     ManageTwoFactorProps;
 
-export default function Security(props: Props) {
+export default function Security({ embedded = false, ...props }: Props & { embedded?: boolean }) {
     const passwordInput = useRef<HTMLInputElement>(null);
     const currentPasswordInput = useRef<HTMLInputElement>(null);
 
     return (
         <>
-            <Head title="Security settings" />
-
-            <h1 className="sr-only">Security settings</h1>
+            {!embedded && <Head title="Account Settings" />}
 
             <div className="space-y-6">
-                <Heading
-                    variant="small"
-                    title="Update password"
-                    description="Ensure your account is using a long, random password to stay secure"
-                />
+                {!embedded && (
+                    <Heading
+                        as="h1"
+                        variant="large"
+                        title="Security"
+                        description="Ensure your account is using a long, random password to stay secure"
+                    />
+                )}
 
                 <Form
                     {...SecurityController.update.form()}
                     options={{
                         preserveScroll: true,
                     }}
-                    resetOnError={[
-                        'password',
-                        'password_confirmation',
-                        'current_password',
-                    ]}
+                    resetOnError={["password", "password_confirmation", "current_password"]}
                     resetOnSuccess
                     onError={(errors) => {
                         if (errors.password) {
@@ -60,9 +57,7 @@ export default function Security(props: Props) {
                     {({ errors, processing }) => (
                         <>
                             <div className="grid gap-2">
-                                <Label htmlFor="current_password">
-                                    Current password
-                                </Label>
+                                <Label htmlFor="current_password">Current Password</Label>
 
                                 <PasswordInput
                                     id="current_password"
@@ -77,7 +72,7 @@ export default function Security(props: Props) {
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="password">New password</Label>
+                                <Label htmlFor="password">New Password</Label>
 
                                 <PasswordInput
                                     id="password"
@@ -93,9 +88,7 @@ export default function Security(props: Props) {
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="password_confirmation">
-                                    Confirm password
-                                </Label>
+                                <Label htmlFor="password_confirmation">Confirm Password</Label>
 
                                 <PasswordInput
                                     id="password_confirmation"
@@ -106,16 +99,11 @@ export default function Security(props: Props) {
                                     passwordrules={props.passwordRules}
                                 />
 
-                                <InputError
-                                    message={errors.password_confirmation}
-                                />
+                                <InputError message={errors.password_confirmation} />
                             </div>
 
                             <div className="flex items-center gap-4">
-                                <Button
-                                    disabled={processing}
-                                    data-test="update-password-button"
-                                >
+                                <Button disabled={processing} data-test="update-password-button">
                                     Save
                                 </Button>
                             </div>
@@ -130,10 +118,7 @@ export default function Security(props: Props) {
                 twoFactorEnabled={props.twoFactorEnabled}
             />
 
-            <ManagePasskeys
-                canManagePasskeys={props.canManagePasskeys}
-                passkeys={props.passkeys}
-            />
+            <ManagePasskeys canManagePasskeys={props.canManagePasskeys} passkeys={props.passkeys} />
         </>
     );
 }
@@ -141,7 +126,7 @@ export default function Security(props: Props) {
 Security.layout = {
     breadcrumbs: [
         {
-            title: 'Security settings',
+            title: "Security settings",
             href: edit(),
         },
     ],

@@ -8,11 +8,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Service extends Model
 {
-    protected $fillable = ['name', 'headline', 'slug', 'intro', 'body', 'rich_content', 'icon', 'banner_image', 'banner_media_id', 'cta_text', 'cta_description', 'cta_button_label', 'cta_link', 'scope', 'countries', 'featured_primary', 'featured_services', 'faqs', 'sort_order', 'status', 'published_at', 'meta_title', 'meta_description'];
+    protected $fillable = ['name', 'headline', 'slug', 'intro', 'body', 'rich_content', 'icon', 'banner_image', 'banner_media_id', 'cta_text', 'cta_description', 'cta_button_label', 'cta_link', 'contact_fields', 'scope', 'countries', 'featured_primary', 'featured_services', 'faqs', 'sort_order', 'status', 'published_at', 'meta_title', 'meta_description'];
 
     protected function casts(): array
     {
-        return ['banner_media_id' => 'integer', 'scope' => 'array', 'countries' => 'array', 'featured_primary' => 'array', 'featured_services' => 'array', 'faqs' => 'array', 'sort_order' => 'integer', 'published_at' => 'datetime'];
+        return ['banner_media_id' => 'integer', 'scope' => 'array', 'countries' => 'array', 'featured_primary' => 'array', 'featured_services' => 'array', 'contact_fields' => 'array', 'faqs' => 'array', 'sort_order' => 'integer', 'published_at' => 'datetime'];
     }
 
     /** @return BelongsTo<Media, $this> */
@@ -46,6 +46,7 @@ class Service extends Model
             'cta_description' => $this->cta_description ?? '',
             'cta_button_label' => $this->cta_button_label ?? '',
             'cta_link' => $this->cta_link ?? '',
+            'contact_fields' => $this->contact_fields ?? [],
             'scope' => $this->scope ?? [],
             'countries' => $this->countries ?? [],
             'featured_primary' => $this->featured_primary ?? [],
