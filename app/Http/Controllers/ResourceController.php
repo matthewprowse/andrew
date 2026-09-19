@@ -7,7 +7,7 @@ use App\Models\AuditLog;
 use App\Models\Media;
 use App\Models\ResourceCategory;
 use App\Models\ResourceItem;
-use App\Models\Service;
+use App\Support\AdminOptions;
 use App\Support\Money;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -31,7 +31,7 @@ class ResourceController extends Controller
 
     public function show(string $category): Response
     {
-        $resourceCategory = ResourceCategory::where('slug', $category)->firstOrFail();
+        $resourceCategory = $this->category($category);
 
         return $this->render($resourceCategory);
     }
@@ -51,7 +51,7 @@ class ResourceController extends Controller
 
     public function admin(string $category): Response
     {
-        $resourceCategory = ResourceCategory::where('slug', $category)->firstOrFail();
+        $resourceCategory = $this->category($category);
 
         return Inertia::render('admin/resources/index', [
             'category' => $category,
@@ -63,13 +63,13 @@ class ResourceController extends Controller
             // LIB-03: read-only service list for the association dropdown —
             // same precedent as TestimonialController@index. Never written
             // back to; only the resource item's own service_id changes.
-            'services' => Service::query()->orderBy('sort_order')->orderBy('id')->get(['id', 'name'])->map(fn (Service $service) => ['id' => (string) $service->id, 'name' => $service->name]),
+            'services' => AdminOptions::services(),
         ]);
     }
 
     public function store(SaveResourceItemRequest $request, string $category): RedirectResponse
     {
-        $resourceCategory = ResourceCategory::where('slug', $category)->firstOrFail();
+        $resourceCategory = $this->category($category);
 
         [$fields, $serviceIds] = $this->fields($request);
         $item = ResourceItem::create([
@@ -85,7 +85,7 @@ class ResourceController extends Controller
 
     public function update(SaveResourceItemRequest $request, string $category, ResourceItem $item): RedirectResponse
     {
-        $resourceCategory = ResourceCategory::where('slug', $category)->firstOrFail();
+        $resourceCategory = $this->category($category);
         abort_unless($item->resource_category_id === $resourceCategory->id, 404);
 
         [$fields, $serviceIds] = $this->fields($request, $item);
@@ -102,9 +102,14 @@ class ResourceController extends Controller
     {
         $data = $request->validate(['layout' => ['required', Rule::in(['list', 'cards'])]]);
 
-        ResourceCategory::where('slug', $category)->firstOrFail()->update(['layout' => $data['layout']]);
+        $this->category($category)->update(['layout' => $data['layout']]);
 
         return to_route('admin.resources.index', $category);
+    }
+
+    private function category(string $slug): ResourceCategory
+    {
+        return ResourceCategory::where('slug', $slug)->firstOrFail();
     }
 
     /**

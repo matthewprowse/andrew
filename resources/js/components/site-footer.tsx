@@ -1,5 +1,6 @@
 import { usePage } from '@inertiajs/react';
 import { SocialLinks } from '@/components/social-links';
+import { SiteLink } from '@/components/site-link';
 import type { PublicSettings } from '@/types/site-settings';
 
 export function SiteFooter() {
@@ -23,22 +24,22 @@ export function SiteFooter() {
                         .filter((m) => m.section === 'footer')
                         .map((m) => (
                             <div key={m.id}>
-                                <a
+                                <SiteLink
                                     href={m.link}
                                     className="text-muted-foreground hover:text-foreground"
                                 >
                                     {m.label}
-                                </a>
+                                </SiteLink>
                                 {m.children.length > 0 && (
                                     <ul className="mt-3 space-y-2">
                                         {m.children.map((c) => (
                                             <li key={c.id}>
-                                                <a
+                                                <SiteLink
                                                     href={c.link}
                                                     className="text-muted-foreground hover:text-foreground"
                                                 >
                                                     {c.label}
-                                                </a>
+                                                </SiteLink>
                                             </li>
                                         ))}
                                     </ul>

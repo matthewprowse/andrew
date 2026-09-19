@@ -51,7 +51,7 @@ class PageController extends Controller
      */
     public function show(string $slug): Response|RedirectResponse
     {
-        $page = Page::query()->where('slug', $slug)->where('kind', Page::KIND_BLOCK)->first();
+        $page = $this->findBlockPage($slug);
 
         if ($page) {
             abort_unless($this->isPublished($page), 404);
@@ -191,7 +191,12 @@ class PageController extends Controller
 
     private function find(string $slug): Page
     {
-        return Page::query()->where('slug', $slug)->where('kind', Page::KIND_BLOCK)->firstOrFail();
+        return $this->findBlockPage($slug) ?? abort(404);
+    }
+
+    private function findBlockPage(string $slug): ?Page
+    {
+        return Page::query()->where('slug', $slug)->where('kind', Page::KIND_BLOCK)->first();
     }
 
     /**

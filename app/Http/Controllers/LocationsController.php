@@ -35,8 +35,8 @@ class LocationsController extends Controller
     {
         return Inertia::render('locations', [
             'content' => $page->publicData(),
-            'offices' => Location::publiclyVisible()->orderBy('sort_order')->orderBy('id')->get()->map(fn (Location $location) => $location->publicData()),
-            'countries' => Country::publiclyVisible()->orderBy('sort_order')->orderBy('id')->get()->map(fn (Country $country) => $country->publicData()),
+            'offices' => Location::publiclyVisible()->ordered()->get()->map(fn (Location $location) => $location->publicData()),
+            'countries' => Country::publiclyVisible()->ordered()->get()->map(fn (Country $country) => $country->publicData()),
             'preview' => $preview,
         ]);
     }
@@ -60,8 +60,8 @@ class LocationsController extends Controller
         $canViewPages = (bool) Auth::user()?->canAdmin('pages', 'view');
 
         $props = [
-            'locations' => Location::query()->orderBy('sort_order')->orderBy('id')->get()->map(fn (Location $location) => $location->adminData()),
-            'countries' => Country::query()->orderBy('sort_order')->orderBy('id')->get()->map(fn (Country $country) => $country->adminData()),
+            'locations' => Location::query()->ordered()->get()->map(fn (Location $location) => $location->adminData()),
+            'countries' => Country::query()->ordered()->get()->map(fn (Country $country) => $country->adminData()),
         ];
 
         if ($canViewPages) {

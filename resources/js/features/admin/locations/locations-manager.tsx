@@ -1,5 +1,6 @@
 import { router } from '@inertiajs/react';
 import { useImperativeHandle, useMemo, useState, type ReactNode } from 'react';
+import { useAdminMutation } from '@/hooks/use-admin-mutation';
 import { ArrowDown, ArrowUp } from 'lucide-react';
 import {
     columnFilteringFeature,
@@ -128,8 +129,12 @@ export function LocationsManager({
     locations: Location[];
     ref?: React.Ref<LocationsManagerHandle>;
 }) {
-    const [processing, setProcessing] = useState(false);
-    const [errors, setErrors] = useState<Record<string, string>>({});
+    const {
+        processing,
+        errors,
+        clearErrors,
+        run: runMutation,
+    } = useAdminMutation();
     const [selectedLocation, setSelectedLocation] = useState<Location | null>(
         null,
     );
@@ -160,7 +165,7 @@ export function LocationsManager({
         .filter((column) => column.getCanSort());
 
     function openCreate() {
-        setErrors({});
+        clearErrors();
         setEditingId(null);
         setDraft({ ...emptyDraft, sortOrder: String(locations.length + 1) });
         setIsFormOpen(true);
@@ -169,7 +174,7 @@ export function LocationsManager({
     useImperativeHandle(ref, () => ({ openCreate }));
 
     function openEdit(location: Location) {
-        setErrors({});
+        clearErrors();
         setEditingId(location.id);
         setDraft({
             officeName: location.officeName,
@@ -192,8 +197,6 @@ export function LocationsManager({
     }
 
     function handleSave() {
-        setProcessing(true);
-        setErrors({});
         const payload = {
             officeName: draft.officeName,
             address: draft.address,
@@ -203,16 +206,17 @@ export function LocationsManager({
             status: draft.status.toLowerCase(),
             isPrimary: draft.isPrimary,
         };
-        const options = {
-            preserveScroll: true,
-            onSuccess: () => setIsFormOpen(false),
-            onError: (validationErrors: Record<string, string>) =>
-                setErrors(validationErrors),
-            onFinish: () => setProcessing(false),
-        };
-        if (editingId)
-            router.patch(`/admin/locations/${editingId}`, payload, options);
-        else router.post('/admin/locations', payload, options);
+        runMutation(
+            (options) =>
+                editingId
+                    ? router.patch(
+                          `/admin/locations/${editingId}`,
+                          payload,
+                          options,
+                      )
+                    : router.post('/admin/locations', payload, options),
+            { onSuccess: () => setIsFormOpen(false) },
+        );
     }
 
     return (

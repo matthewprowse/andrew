@@ -1,12 +1,6 @@
 import { Link, useForm } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
 import {
-    ArrowDown,
-    ArrowUp,
-    LayoutGrid,
-    Table as TableIcon,
-} from 'lucide-react';
-import {
     createColumnHelper,
     createSortedRowModel,
     rowSortingFeature,
@@ -38,14 +32,9 @@ import { DataTable } from '@/components/ui/data-table';
 import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from '@/components/ui/popover';
 import { Textarea } from '@/components/ui/textarea';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import AdminWorkspaceLayout from '@/layouts/admin-workspace-layout';
+import { AdminTableToolbar } from '@/components/admin/admin-table-toolbar';
 
 type Activity = { type: string; label: string; date: string | null };
 type RelatedRecord = {
@@ -155,59 +144,19 @@ export default function CustomersIndex({
         });
     }
     const headerAction = (
-        <div className="flex items-center gap-2">
-            <ToggleGroup
-                type="single"
-                variant="outline"
-                size="sm"
-                value={viewMode}
-                onValueChange={(value) =>
-                    value && setViewMode(value as 'table' | 'cards')
-                }
-            >
-                <ToggleGroupItem value="table" aria-label="Table view">
-                    <TableIcon className="size-4" />
-                </ToggleGroupItem>
-                <ToggleGroupItem value="cards" aria-label="Card view">
-                    <LayoutGrid className="size-4" />
-                </ToggleGroupItem>
-            </ToggleGroup>
-            <Input
-                placeholder="Search"
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-                className="h-8 w-64"
-            />
-            <Popover>
-                <PopoverTrigger asChild>
-                    <Button variant="secondary">Sort</Button>
-                </PopoverTrigger>
-                <PopoverContent align="end" className="w-56">
-                    {sortableColumns.map((column) => {
-                        const sorted = column.getIsSorted();
-                        return (
-                            <button
-                                key={column.id}
-                                onClick={column.getToggleSortingHandler()}
-                                className="hover:bg-accent relative flex w-full items-center gap-1.5 rounded-md px-2 py-1.5 text-left text-sm"
-                            >
-                                {columnLabels[column.id]}
-                                <span className="ml-auto">
-                                    {sorted === 'asc' ? (
-                                        <ArrowUp className="size-3.5" />
-                                    ) : sorted === 'desc' ? (
-                                        <ArrowDown className="size-3.5" />
-                                    ) : null}
-                                </span>
-                            </button>
-                        );
-                    })}
-                </PopoverContent>
-            </Popover>
+        <AdminTableToolbar
+            search={search}
+            onSearchChange={setSearch}
+            searchClassName="h-8 w-64"
+            sortColumns={sortableColumns}
+            sortLabels={columnLabels}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
+        >
             <Button variant="secondary" onClick={openCreate}>
                 New Customer
             </Button>
-        </div>
+        </AdminTableToolbar>
     );
     const description =
         'Lorem ipsum dolor sit amet, consectetur adipiscing elit.';

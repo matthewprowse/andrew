@@ -27,6 +27,12 @@ class Location extends Model
         return static::query()->where('status', 'published');
     }
 
+    /** @return Builder<static> */
+    public function scopeOrdered(Builder $query): Builder
+    {
+        return $query->orderBy('sort_order')->orderBy('id');
+    }
+
     /** @return array<string, string|int> */
     public function publicData(): array
     {

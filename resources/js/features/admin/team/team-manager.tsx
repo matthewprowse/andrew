@@ -14,6 +14,7 @@ import {
     useTable,
 } from '@tanstack/react-table';
 import { MediaPicker } from '@/components/admin/media-picker';
+import { useAdminMutation } from '@/hooks/use-admin-mutation';
 import {
     AdminDialogContent,
     AdminDialogFooter,
@@ -94,8 +95,12 @@ export function TeamManager({
     ref?: React.Ref<TeamManagerHandle>;
     hideToolbar?: boolean;
 }) {
-    const [processing, setProcessing] = useState(false);
-    const [errors, setErrors] = useState<Record<string, string>>({});
+    const {
+        processing,
+        errors,
+        clearErrors,
+        run: runMutation,
+    } = useAdminMutation();
     const [selectedMember, setSelectedMember] =
         useState<TeamMemberAdminRecord | null>(null);
     const [isFormOpen, setIsFormOpen] = useState(false);
@@ -113,7 +118,7 @@ export function TeamManager({
         .filter((column) => column.getCanSort());
 
     function openCreate() {
-        setErrors({});
+        clearErrors();
         setEditingId(null);
         setDraft({ ...emptyDraft, sortOrder: members.length + 1 });
         setIsFormOpen(true);
@@ -122,7 +127,7 @@ export function TeamManager({
     useImperativeHandle(ref, () => ({ openCreate }));
 
     function openEdit(member: TeamMemberAdminRecord) {
-        setErrors({});
+        clearErrors();
         setEditingId(member.id);
         setDraft({
             name: member.name,
@@ -141,8 +146,6 @@ export function TeamManager({
     }
 
     function handleSave() {
-        setProcessing(true);
-        setErrors({});
         const payload = {
             name: draft.name,
             role: draft.role,
@@ -151,16 +154,13 @@ export function TeamManager({
             status: draft.status === 'Live' ? 'published' : 'draft',
             sort_order: draft.sortOrder,
         };
-        const options = {
-            preserveScroll: true,
-            onSuccess: () => setIsFormOpen(false),
-            onError: (validationErrors: Record<string, string>) =>
-                setErrors(validationErrors),
-            onFinish: () => setProcessing(false),
-        };
-        if (editingId)
-            router.patch(`/admin/team/${editingId}`, payload, options);
-        else router.post('/admin/team', payload, options);
+        runMutation(
+            (options) =>
+                editingId
+                    ? router.patch(`/admin/team/${editingId}`, payload, options)
+                    : router.post('/admin/team', payload, options),
+            { onSuccess: () => setIsFormOpen(false) },
+        );
     }
 
     return (

@@ -1,12 +1,6 @@
 import { router } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
 import {
-    ArrowDown,
-    ArrowUp,
-    LayoutGrid,
-    Table as TableIcon,
-} from 'lucide-react';
-import {
     createColumnHelper,
     createSortedRowModel,
     rowSortingFeature,
@@ -16,6 +10,7 @@ import {
 } from '@tanstack/react-table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { AdminTableToolbar } from '@/components/admin/admin-table-toolbar';
 import {
     AdminDialogContent,
     AdminDialogFooter,
@@ -28,18 +23,12 @@ import { Dialog, DialogClose } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from '@/components/ui/popover';
-import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { formatAdminDate } from '@/lib/format-admin-date';
 import AdminWorkspaceLayout from '@/layouts/admin-workspace-layout';
 
@@ -282,61 +271,15 @@ export function MediaLibraryManager({
             title="Media Library"
             description={PAGE_DESCRIPTION}
             headerAction={
-                <>
-                    <ToggleGroup
-                        type="single"
-                        variant="outline"
-                        size="sm"
-                        value={viewMode}
-                        onValueChange={(value) => {
-                            if (value) setViewMode(value as 'table' | 'cards');
-                        }}
-                    >
-                        <ToggleGroupItem value="table" aria-label="Table view">
-                            <TableIcon className="size-4" />
-                        </ToggleGroupItem>
-                        <ToggleGroupItem value="cards" aria-label="Card view">
-                            <LayoutGrid className="size-4" />
-                        </ToggleGroupItem>
-                    </ToggleGroup>
-                    <Input
-                        placeholder="Search"
-                        value={search}
-                        onChange={(event) => setSearch(event.target.value)}
-                        className="h-8 w-72"
-                    />
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <Button variant="secondary">Sort</Button>
-                        </PopoverTrigger>
-                        <PopoverContent
-                            align="end"
-                            sideOffset={8}
-                            className="w-56"
-                        >
-                            {sortableColumns.map((column) => {
-                                const sorted = column.getIsSorted();
-
-                                return (
-                                    <button
-                                        key={column.id}
-                                        onClick={column.getToggleSortingHandler()}
-                                        className="hover:bg-accent hover:text-accent-foreground relative flex w-full items-center gap-1.5 rounded-md py-1 pr-8 pl-1.5 text-left text-sm select-none"
-                                    >
-                                        {columnLabels[column.id]}
-                                        <span className="pointer-events-none absolute right-2 flex size-4 items-center justify-center">
-                                            {sorted === 'asc' && (
-                                                <ArrowUp className="size-3.5" />
-                                            )}
-                                            {sorted === 'desc' && (
-                                                <ArrowDown className="size-3.5" />
-                                            )}
-                                        </span>
-                                    </button>
-                                );
-                            })}
-                        </PopoverContent>
-                    </Popover>
+                <AdminTableToolbar
+                    search={search}
+                    onSearchChange={setSearch}
+                    searchClassName="h-8 w-72"
+                    sortColumns={sortableColumns}
+                    sortLabels={columnLabels}
+                    viewMode={viewMode}
+                    onViewModeChange={setViewMode}
+                >
                     <Select
                         value={type}
                         onValueChange={(value) => setType(value as TypeFilter)}
@@ -357,7 +300,7 @@ export function MediaLibraryManager({
                     >
                         New Media
                     </Button>
-                </>
+                </AdminTableToolbar>
             }
         >
             <Heading

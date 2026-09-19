@@ -4,10 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\AuditLog;
 use App\Models\BlogPost;
-use App\Models\Service;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use App\Support\AdminOptions;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -16,14 +16,14 @@ class BlogController extends Controller
 {
     public function index(): Response
     {
-        return Inertia::render('blog', ['blogPosts' => BlogPost::publiclyVisible()->with(['services', 'author', 'bannerImage'])->orderByDesc('publish_date')->orderByDesc('id')->get()->map(fn (BlogPost $post) => $post->publicData())]);
+        return Inertia::render('blog', ['blogPosts' => $this->publicPosts()->get()->map(fn (BlogPost $post) => $post->publicData())]);
     }
 
     public function show(string $slug): Response
     {
-        $post = BlogPost::publiclyVisible()->with(['services', 'author', 'bannerImage'])->where('slug', $slug)->firstOrFail();
+        $post = $this->publicPosts()->where('slug', $slug)->firstOrFail();
 
-        return Inertia::render('blog-post', ['post' => $post->publicData(), 'otherPosts' => BlogPost::publiclyVisible()->with(['services', 'author', 'bannerImage'])->whereKeyNot($post->id)->orderByDesc('publish_date')->orderByDesc('id')->limit(3)->get()->map(fn (BlogPost $related) => $related->publicData())]);
+        return Inertia::render('blog-post', ['post' => $post->publicData(), 'otherPosts' => $this->publicPosts()->whereKeyNot($post->id)->limit(3)->get()->map(fn (BlogPost $related) => $related->publicData())]);
     }
 
     public function admin(): Response
@@ -32,11 +32,20 @@ class BlogController extends Controller
             'posts' => BlogPost::query()->with(['services', 'author', 'bannerImage'])->orderByDesc('publish_date')->orderByDesc('id')->get()->map(fn (BlogPost $post) => $post->adminData()),
             // LIB-03: read-only dropdown source, same precedent as TestimonialController@index.
             // Never written back to directly — posts are linked via services()->sync() below.
-            'services' => Service::query()->orderBy('sort_order')->orderBy('id')->get(['id', 'name'])->map(fn (Service $service) => ['id' => (string) $service->id, 'name' => $service->name]),
+            'services' => AdminOptions::services(),
             // Author picker: scoped to admin-panel users only (a role assignment or
             // root-admin id), same reasoning as the services dropdown above — read-only
             // lookup data, never written back to.
         ]);
+    }
+
+    /** @return \Illuminate\Database\Eloquent\Builder<BlogPost> */
+    private function publicPosts(): \Illuminate\Database\Eloquent\Builder
+    {
+        return BlogPost::publiclyVisible()
+            ->with(['services', 'author', 'bannerImage'])
+            ->orderByDesc('publish_date')
+            ->orderByDesc('id');
     }
 
     public function store(Request $request): RedirectResponse

@@ -1,4 +1,4 @@
-import { Check, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import {
@@ -76,6 +76,7 @@ export function RelatedServicesField({
                             <SelectItem
                                 key={service.id}
                                 value={service.id}
+                                checked={selected}
                                 onSelect={(event) => {
                                     // Keep the default Select menu open so this
                                     // behaves as a true multi-select.
@@ -84,9 +85,6 @@ export function RelatedServicesField({
                                 }}
                             >
                                 {service.name}
-                                <span className="pointer-events-none absolute right-2 flex size-4 items-center justify-center">
-                                    {selected && <Check className="size-4" />}
-                                </span>
                             </SelectItem>
                         );
                     })}

@@ -7,6 +7,7 @@ import {
     AdminDialogHeader,
 } from '@/components/admin/admin-dialog';
 import { DatePicker } from '@/components/admin/date-picker';
+import { useAdminMutation } from '@/hooks/use-admin-mutation';
 import {
     columnFilteringFeature,
     createColumnHelper,
@@ -118,8 +119,12 @@ export function CareersManager({
     ref?: React.Ref<CareersManagerHandle>;
     hideToolbar?: boolean;
 }) {
-    const [processing, setProcessing] = useState(false);
-    const [errors, setErrors] = useState<Record<string, string>>({});
+    const {
+        processing,
+        errors,
+        clearErrors,
+        run: runMutation,
+    } = useAdminMutation();
     const [selectedCareer, setSelectedCareer] = useState<Career | null>(null);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
@@ -135,7 +140,7 @@ export function CareersManager({
         .filter((column) => column.getCanSort());
 
     function openCreate() {
-        setErrors({});
+        clearErrors();
         setEditingId(null);
         setDraft({ ...emptyDraft, postedDate: todayIso() });
         setIsFormOpen(true);
@@ -144,7 +149,7 @@ export function CareersManager({
     useImperativeHandle(ref, () => ({ openCreate }));
 
     function openEdit(career: Career) {
-        setErrors({});
+        clearErrors();
         setEditingId(career.id);
         setDraft({
             jobTitle: career.jobTitle,
@@ -165,22 +170,21 @@ export function CareersManager({
     }
 
     function handleSave() {
-        setProcessing(true);
-        setErrors({});
-        const options = {
-            preserveScroll: true,
-            onSuccess: () => setIsFormOpen(false),
-            onError: (validationErrors: Record<string, string>) =>
-                setErrors(validationErrors),
-            onFinish: () => setProcessing(false),
-        };
         const payload = {
             ...draft,
             status: draft.status === 'Live' ? 'Open' : 'Closed',
         };
-        if (editingId)
-            router.patch(`/admin/careers/${editingId}`, payload, options);
-        else router.post('/admin/careers', payload, options);
+        runMutation(
+            (options) =>
+                editingId
+                    ? router.patch(
+                          `/admin/careers/${editingId}`,
+                          payload,
+                          options,
+                      )
+                    : router.post('/admin/careers', payload, options),
+            { onSuccess: () => setIsFormOpen(false) },
+        );
     }
 
     return (

@@ -42,7 +42,7 @@ class ContactController extends Controller
     {
         return Inertia::render('contact', [
             'content' => $page->publicData(),
-            'offices' => Location::publiclyVisible()->orderBy('sort_order')->orderBy('id')->get()->map(fn (Location $location) => $location->publicData()),
+            'offices' => Location::publiclyVisible()->ordered()->get()->map(fn (Location $location) => $location->publicData()),
             'defaultSubject' => $defaultSubject,
             'preview' => $preview,
         ]);

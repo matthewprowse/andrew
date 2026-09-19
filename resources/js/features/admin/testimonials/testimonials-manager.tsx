@@ -1,11 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import { useState, type ReactNode } from 'react';
-import {
-    ArrowDown,
-    ArrowUp,
-    LayoutGrid,
-    Table as TableIcon,
-} from 'lucide-react';
+import { AdminTableToolbar } from '@/components/admin/admin-table-toolbar';
 import {
     columnFilteringFeature,
     createColumnHelper,
@@ -46,12 +41,6 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from '@/components/ui/popover';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { formatAdminDate } from '@/lib/format-admin-date';
 
 export type TestimonialRecord = {
@@ -179,62 +168,13 @@ export function TestimonialsManager({
             title="Testimonials"
             description={PAGE_DESCRIPTION}
             headerAction={
-                <>
-                    <ToggleGroup
-                        type="single"
-                        variant="outline"
-                        size="sm"
-                        value={viewMode}
-                        onValueChange={(value) =>
-                            value && setViewMode(value as 'table' | 'cards')
-                        }
-                    >
-                        <ToggleGroupItem value="table" aria-label="Table view">
-                            <TableIcon className="size-4" />
-                        </ToggleGroupItem>
-                        <ToggleGroupItem value="cards" aria-label="Card view">
-                            <LayoutGrid className="size-4" />
-                        </ToggleGroupItem>
-                    </ToggleGroup>
-                    <Input
-                        placeholder="Search"
-                        value={table.state.globalFilter ?? ''}
-                        onChange={(event) =>
-                            table.setGlobalFilter(event.target.value)
-                        }
-                        className="h-8 w-96"
-                    />
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <Button variant="secondary">Sort</Button>
-                        </PopoverTrigger>
-                        <PopoverContent
-                            align="end"
-                            sideOffset={8}
-                            className="w-56"
-                        >
-                            {sortableColumns.map((column) => {
-                                const sorted = column.getIsSorted();
-                                return (
-                                    <button
-                                        key={column.id}
-                                        onClick={column.getToggleSortingHandler()}
-                                        className="hover:bg-accent hover:text-accent-foreground relative flex w-full items-center gap-1.5 rounded-md py-1 pr-8 pl-1.5 text-left text-sm select-none"
-                                    >
-                                        {column.id}
-                                        <span className="pointer-events-none absolute right-2 flex size-4 items-center justify-center">
-                                            {sorted === 'asc' && (
-                                                <ArrowUp className="size-3.5" />
-                                            )}
-                                            {sorted === 'desc' && (
-                                                <ArrowDown className="size-3.5" />
-                                            )}
-                                        </span>
-                                    </button>
-                                );
-                            })}
-                        </PopoverContent>
-                    </Popover>
+                <AdminTableToolbar
+                    search={table.state.globalFilter ?? ''}
+                    onSearchChange={(value) => table.setGlobalFilter(value)}
+                    sortColumns={sortableColumns}
+                    viewMode={viewMode}
+                    onViewModeChange={setViewMode}
+                >
                     <Button
                         type="button"
                         variant="secondary"
@@ -242,7 +182,7 @@ export function TestimonialsManager({
                     >
                         New Testimonial
                     </Button>
-                </>
+                </AdminTableToolbar>
             }
         >
             <Heading

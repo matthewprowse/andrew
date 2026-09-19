@@ -17,8 +17,7 @@ class ServiceController extends Controller
     public function admin(): Response
     {
         return Inertia::render('admin/services/index', [
-            'services' => Service::query()->orderBy('sort_order')->orderBy('id')->get()
-                ->map(fn (Service $service) => $service->adminData()),
+            'services' => $this->adminServices(),
             'resourceOptions' => ResourceItem::query()->where('status', 'published')->with('category')->orderBy('title')->orderBy('id')->get()
                 ->map(fn (ResourceItem $resource) => $resource->adminData()),
         ]);
@@ -27,9 +26,14 @@ class ServiceController extends Controller
     public function test(): Response
     {
         return Inertia::render('admin/test', [
-            'services' => Service::query()->orderBy('sort_order')->orderBy('id')->get()
-                ->map(fn (Service $service) => $service->adminData()),
+            'services' => $this->adminServices(),
         ]);
+    }
+
+    private function adminServices(): \Illuminate\Support\Collection
+    {
+        return Service::query()->orderBy('sort_order')->orderBy('id')->get()
+            ->map(fn (Service $service) => $service->adminData());
     }
 
     public function index(): Response

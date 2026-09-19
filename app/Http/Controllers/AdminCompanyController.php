@@ -3,10 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Career;
-use App\Models\Role;
 use App\Models\SiteSetting;
 use App\Models\TeamMember;
-use App\Models\User;
+use App\Support\AdminOptions;
 use App\Support\PublicSettings;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -53,15 +52,8 @@ class AdminCompanyController extends Controller
         if ($isRootAdmin) {
             $props['sections'] = config('admin.sections');
             $props['actions'] = config('admin.actions');
-            $props['roles'] = Role::orderBy('name')->get()->map(fn (Role $role) => $role->adminData());
-            $props['users'] = User::with('role')->orderBy('name')->get()->map(fn (User $member) => [
-                'id' => $member->id,
-                'name' => $member->name,
-                'email' => $member->email,
-                'roleId' => $member->role_id,
-                'roleName' => $member->role?->name,
-                'isRootAdmin' => $member->isRootAdmin(),
-            ]);
+            $props['roles'] = AdminOptions::roles();
+            $props['users'] = AdminOptions::users();
         }
 
         return Inertia::render('admin/company/members', $props);

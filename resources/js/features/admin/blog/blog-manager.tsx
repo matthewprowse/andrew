@@ -1,12 +1,6 @@
 import { router, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
-import {
-    ArrowDown,
-    ArrowUp,
-    LayoutGrid,
-    Newspaper,
-    Table as TableIcon,
-} from 'lucide-react';
+import { Newspaper } from 'lucide-react';
 import {
     columnFilteringFeature,
     createColumnHelper,
@@ -20,6 +14,7 @@ import {
     useTable,
 } from '@tanstack/react-table';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { useAdminMutation } from '@/hooks/use-admin-mutation';
 import {
     AdminDialogContent,
     AdminDialogFooter,
@@ -27,6 +22,7 @@ import {
 } from '@/components/admin/admin-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { AdminTableToolbar } from '@/components/admin/admin-table-toolbar';
 import {
     Card,
     CardAction,
@@ -49,11 +45,6 @@ import { Dialog, DialogClose, DialogDescription } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from '@/components/ui/popover';
-import {
     Select,
     SelectContent,
     SelectItem,
@@ -61,7 +52,6 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { DatePicker } from '@/components/admin/date-picker';
 import { RelatedServicesField } from '@/components/admin/related-services-field';
 import {
@@ -204,8 +194,12 @@ export function BlogManager({
     const canCreate = blogPermissions.create === true;
     const canEdit = blogPermissions.edit === true;
     const canPublish = blogPermissions.publish === true;
-    const [processing, setProcessing] = useState(false);
-    const [errors, setErrors] = useState<Record<string, string>>({});
+    const {
+        processing,
+        errors,
+        clearErrors,
+        run: runMutation,
+    } = useAdminMutation();
     const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
@@ -224,7 +218,7 @@ export function BlogManager({
         .filter((column) => column.getCanSort());
 
     function openCreate() {
-        setErrors({});
+        clearErrors();
         setEditingId(null);
         setDraft({ ...emptyDraft, publishDate: todayIso() });
         setBannerMedia(null);
@@ -233,7 +227,7 @@ export function BlogManager({
     }
 
     function openEdit(post: BlogPost) {
-        setErrors({});
+        clearErrors();
         setEditingId(post.id);
         setDraft({
             excerpt: post.excerpt,
@@ -279,22 +273,17 @@ export function BlogManager({
     }
 
     function handleSave() {
-        setProcessing(true);
-        setErrors({});
         const payload = {
             ...draft,
             bannerMediaId: bannerMedia ? Number(bannerMedia.id) : null,
         };
-        const options = {
-            preserveScroll: true,
-            onSuccess: () => setIsFormOpen(false),
-            onError: (validationErrors: Record<string, string>) =>
-                setErrors(validationErrors),
-            onFinish: () => setProcessing(false),
-        };
-        if (editingId)
-            router.patch(`/admin/blog/${editingId}`, payload, options);
-        else router.post('/admin/blog', payload, options);
+        runMutation(
+            (options) =>
+                editingId
+                    ? router.patch(`/admin/blog/${editingId}`, payload, options)
+                    : router.post('/admin/blog', payload, options),
+            { onSuccess: () => setIsFormOpen(false) },
+        );
     }
 
     return (
@@ -302,62 +291,14 @@ export function BlogManager({
             title="Articles"
             description={PAGE_DESCRIPTION}
             headerAction={
-                <>
-                    <ToggleGroup
-                        type="single"
-                        variant="outline"
-                        size="sm"
-                        value={viewMode}
-                        onValueChange={(value) => {
-                            if (value) setViewMode(value as 'table' | 'cards');
-                        }}
-                    >
-                        <ToggleGroupItem value="table" aria-label="Table view">
-                            <TableIcon className="size-4" />
-                        </ToggleGroupItem>
-                        <ToggleGroupItem value="cards" aria-label="Card view">
-                            <LayoutGrid className="size-4" />
-                        </ToggleGroupItem>
-                    </ToggleGroup>
-                    <Input
-                        placeholder="Search"
-                        value={table.state.globalFilter ?? ''}
-                        onChange={(event) =>
-                            table.setGlobalFilter(event.target.value)
-                        }
-                        className="h-8 w-96"
-                    />
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <Button variant="secondary">Sort</Button>
-                        </PopoverTrigger>
-                        <PopoverContent
-                            align="end"
-                            sideOffset={8}
-                            className="w-56"
-                        >
-                            {sortableColumns.map((column) => {
-                                const sorted = column.getIsSorted();
-                                return (
-                                    <button
-                                        key={column.id}
-                                        onClick={column.getToggleSortingHandler()}
-                                        className="hover:bg-accent hover:text-accent-foreground relative flex w-full items-center gap-1.5 rounded-md py-1 pr-8 pl-1.5 text-left text-sm select-none"
-                                    >
-                                        {columnLabels[column.id] ?? column.id}
-                                        <span className="pointer-events-none absolute right-2 flex size-4 items-center justify-center">
-                                            {sorted === 'asc' && (
-                                                <ArrowUp className="size-3.5" />
-                                            )}
-                                            {sorted === 'desc' && (
-                                                <ArrowDown className="size-3.5" />
-                                            )}
-                                        </span>
-                                    </button>
-                                );
-                            })}
-                        </PopoverContent>
-                    </Popover>
+                <AdminTableToolbar
+                    search={table.state.globalFilter ?? ''}
+                    onSearchChange={(value) => table.setGlobalFilter(value)}
+                    sortColumns={sortableColumns}
+                    sortLabels={columnLabels}
+                    viewMode={viewMode}
+                    onViewModeChange={setViewMode}
+                >
                     {canCreate && (
                         <Button
                             type="button"
@@ -367,7 +308,7 @@ export function BlogManager({
                             New Post
                         </Button>
                     )}
-                </>
+                </AdminTableToolbar>
             }
         >
             <Heading

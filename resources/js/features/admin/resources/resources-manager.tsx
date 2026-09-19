@@ -1,12 +1,6 @@
 import { router } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import {
-    ArrowDown,
-    ArrowUp,
-    LayoutGrid,
-    Table as TableIcon,
-} from 'lucide-react';
-import {
     columnFilteringFeature,
     createColumnHelper,
     createFilteredRowModel,
@@ -19,6 +13,8 @@ import {
     useTable,
 } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
+import { AdminTableToolbar } from '@/components/admin/admin-table-toolbar';
+import { useAdminMutation } from '@/hooks/use-admin-mutation';
 import { Badge } from '@/components/ui/badge';
 import {
     AdminDialogContent,
@@ -31,11 +27,6 @@ import { Input } from '@/components/ui/input';
 import AdminWorkspaceLayout from '@/layouts/admin-workspace-layout';
 import { Label } from '@/components/ui/label';
 import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from '@/components/ui/popover';
-import {
     Select,
     SelectContent,
     SelectItem,
@@ -44,7 +35,6 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { CurrencyInput } from '@/components/ui/currency-input';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import Heading from '@/components/heading';
 import { RelatedServicesField } from '@/components/admin/related-services-field';
 import {
@@ -151,8 +141,12 @@ export function ResourcesManager({
     items: ResourceItemAdminRecord[];
     services?: ServiceOption[];
 }) {
-    const [processing, setProcessing] = useState(false);
-    const [errors, setErrors] = useState<Record<string, string>>({});
+    const {
+        processing,
+        errors,
+        clearErrors,
+        run: runMutation,
+    } = useAdminMutation();
     const [selectedItem, setSelectedItem] =
         useState<ResourceItemAdminRecord | null>(null);
     const [isFormOpen, setIsFormOpen] = useState(false);
@@ -171,14 +165,14 @@ export function ResourcesManager({
         .filter((column) => column.getCanSort());
 
     function openCreate() {
-        setErrors({});
+        clearErrors();
         setEditingId(null);
         setDraft(emptyDraft);
         setIsFormOpen(true);
     }
 
     function openEdit(item: ResourceItemAdminRecord) {
-        setErrors({});
+        clearErrors();
         setEditingId(item.id);
         setDraft({
             title: item.title,
@@ -218,8 +212,6 @@ export function ResourcesManager({
     }
 
     function handleSave() {
-        setProcessing(true);
-        setErrors({});
         const payload = {
             title: draft.title,
             description: draft.description,
@@ -235,83 +227,35 @@ export function ResourcesManager({
             service_id: draft.serviceIds[0] ?? '',
         };
 
-        const options = {
-            preserveScroll: true,
-            onSuccess: () => setIsFormOpen(false),
-            onError: (validationErrors: Record<string, string>) =>
-                setErrors(validationErrors),
-            onFinish: () => setProcessing(false),
-        };
-        if (editingId)
-            router.patch(
-                `/admin/resources/${category}/${editingId}`,
-                payload,
-                options,
-            );
-        else router.post(`/admin/resources/${category}`, payload, options);
+        runMutation(
+            (options) =>
+                editingId
+                    ? router.patch(
+                          `/admin/resources/${category}/${editingId}`,
+                          payload,
+                          options,
+                      )
+                    : router.post(
+                          `/admin/resources/${category}`,
+                          payload,
+                          options,
+                      ),
+            { onSuccess: () => setIsFormOpen(false) },
+        );
     }
 
     return (
         <AdminWorkspaceLayout
             title="Resources"
             headerAction={
-                <>
-                    <ToggleGroup
-                        type="single"
-                        variant="outline"
-                        size="sm"
-                        value={viewMode}
-                        onValueChange={(value) => {
-                            if (value) setViewMode(value as 'table' | 'cards');
-                        }}
-                    >
-                        <ToggleGroupItem value="table" aria-label="Table view">
-                            <TableIcon className="size-4" />
-                        </ToggleGroupItem>
-                        <ToggleGroupItem value="cards" aria-label="Card view">
-                            <LayoutGrid className="size-4" />
-                        </ToggleGroupItem>
-                    </ToggleGroup>
-                    <Input
-                        placeholder="Search"
-                        value={table.state.globalFilter ?? ''}
-                        onChange={(event) =>
-                            table.setGlobalFilter(event.target.value)
-                        }
-                        className="h-8 w-96"
-                    />
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <Button variant="secondary">Sort</Button>
-                        </PopoverTrigger>
-                        <PopoverContent
-                            align="end"
-                            sideOffset={8}
-                            className="w-56"
-                        >
-                            {sortableColumns.map((column) => {
-                                const sorted = column.getIsSorted();
-
-                                return (
-                                    <button
-                                        key={column.id}
-                                        onClick={column.getToggleSortingHandler()}
-                                        className="hover:bg-accent hover:text-accent-foreground relative flex w-full items-center gap-1.5 rounded-md py-1 pr-8 pl-1.5 text-left text-sm select-none"
-                                    >
-                                        {columnLabels[column.id] ?? column.id}
-                                        <span className="pointer-events-none absolute right-2 flex size-4 items-center justify-center">
-                                            {sorted === 'asc' && (
-                                                <ArrowUp className="size-3.5" />
-                                            )}
-                                            {sorted === 'desc' && (
-                                                <ArrowDown className="size-3.5" />
-                                            )}
-                                        </span>
-                                    </button>
-                                );
-                            })}
-                        </PopoverContent>
-                    </Popover>
+                <AdminTableToolbar
+                    search={table.state.globalFilter ?? ''}
+                    onSearchChange={(value) => table.setGlobalFilter(value)}
+                    sortColumns={sortableColumns}
+                    sortLabels={columnLabels}
+                    viewMode={viewMode}
+                    onViewModeChange={setViewMode}
+                >
                     <Button
                         type="button"
                         variant="secondary"
@@ -319,7 +263,7 @@ export function ResourcesManager({
                     >
                         New Item
                     </Button>
-                </>
+                </AdminTableToolbar>
             }
         >
             <Heading

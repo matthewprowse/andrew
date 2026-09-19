@@ -104,9 +104,13 @@ function SelectLabel({
 
 function SelectItem({
   className,
+  checked,
   children,
   ...props
-}: React.ComponentProps<typeof SelectPrimitive.Item>) {
+}: React.ComponentProps<typeof SelectPrimitive.Item> & {
+  /** Allows multi-select-like consumers to control the indicator independently of the Select value. */
+  checked?: boolean
+}) {
   return (
     <SelectPrimitive.Item
       data-slot="select-item"
@@ -117,9 +121,13 @@ function SelectItem({
       {...props}
     >
       <span className="pointer-events-none absolute right-2 flex size-4 items-center justify-center">
-        <SelectPrimitive.ItemIndicator>
-          <CheckIcon className="pointer-events-none" />
-        </SelectPrimitive.ItemIndicator>
+        {checked === undefined ? (
+          <SelectPrimitive.ItemIndicator>
+            <CheckIcon className="pointer-events-none" />
+          </SelectPrimitive.ItemIndicator>
+        ) : (
+          checked && <CheckIcon className="pointer-events-none" />
+        )}
       </span>
       <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
     </SelectPrimitive.Item>

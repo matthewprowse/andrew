@@ -24,7 +24,7 @@ import { logout } from '@/routes';
 // rather than living inside this dropdown, so this menu only ever shows
 // account info + log out. Deliberately NOT a shared/parameterized version of
 // NavUser/UserMenuContent — those two files are still used as-is by
-// admin-layout.tsx (Estimator, Account Settings, admin/section.tsx), which
+// the workspace layout (Estimator and Account Settings), which
 // keeps its Settings-in-a-popover behavior untouched.
 export function WorkspaceNavUser() {
     const { auth } = usePage().props;

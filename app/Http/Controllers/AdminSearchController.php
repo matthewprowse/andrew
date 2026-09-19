@@ -16,8 +16,10 @@ use App\Models\User;
 use App\Support\ContentLibrary;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Closure;
 
 /**
  * LIB-08 (docs/ADMIN_UX_SEO_BUILD_PLAN.md §Phase 4 batch 4C — the final
@@ -85,41 +87,28 @@ class AdminSearchController extends Controller
             return null;
         }
 
-        $blockPages = Page::query()
-            ->where('kind', Page::KIND_BLOCK)
-            ->where(function ($inner) use ($query) {
-                $inner->where('title', 'like', "%{$query}%")
-                    ->orWhere('meta_title', 'like', "%{$query}%")
-                    ->orWhere('slug', 'like', "%{$query}%");
-            })
-            ->limit(self::PER_SOURCE_LIMIT)
-            ->get()
-            ->map(fn (Page $page): array => [
-                'id' => 'page:'.$page->id,
-                'title' => $page->title ?: ucfirst($page->slug),
-                'snippet' => $page->meta_description ?: ('/'.($page->slug === 'home' ? '' : $page->slug)),
-                'href' => '/admin/blocks/'.$page->slug,
-            ]);
+        $blockPages = $this->searchPages(
+            $query,
+            Page::KIND_BLOCK,
+            ['title', 'meta_title', 'slug'],
+            null,
+            fn (Page $page): string => $page->title ?: ucfirst($page->slug),
+            fn (Page $page): string => $page->meta_description ?: ('/'.($page->slug === 'home' ? '' : $page->slug)),
+            fn (Page $page): string => '/admin/blocks/'.$page->slug,
+        );
 
         // Legacy fixed-field pages (Contact, Locations — About moved to the
         // block-pages branch above) still search on hero_heading, the field
         // their editor actually shows.
-        $legacyPages = Page::query()
-            ->where('kind', Page::KIND_LEGACY)
-            ->whereIn('slug', ['contact', 'locations'])
-            ->where(function ($inner) use ($query) {
-                $inner->where('hero_heading', 'like', "%{$query}%")
-                    ->orWhere('meta_title', 'like', "%{$query}%")
-                    ->orWhere('slug', 'like', "%{$query}%");
-            })
-            ->limit(self::PER_SOURCE_LIMIT)
-            ->get()
-            ->map(fn (Page $page): array => [
-                'id' => 'page:'.$page->id,
-                'title' => $page->hero_heading ?: ucfirst($page->slug),
-                'snippet' => $page->meta_description ?: ('/'.$page->slug),
-                'href' => '/admin/pages/'.$page->slug,
-            ]);
+        $legacyPages = $this->searchPages(
+            $query,
+            Page::KIND_LEGACY,
+            ['hero_heading', 'meta_title', 'slug'],
+            ['contact', 'locations'],
+            fn (Page $page): string => $page->hero_heading ?: ucfirst($page->slug),
+            fn (Page $page): string => $page->meta_description ?: ('/'.$page->slug),
+            fn (Page $page): string => '/admin/pages/'.$page->slug,
+        );
 
         $rows = $blockPages->concat($legacyPages)->take(self::PER_SOURCE_LIMIT);
 
@@ -173,25 +162,22 @@ class AdminSearchController extends Controller
     /** @return array{key: string, label: string, items: array<int, array<string, mixed>>}|null */
     private function testimonials(?User $user, string $query): ?array
     {
-        if (! $user?->canAdmin('testimonials', 'view')) {
-            return null;
-        }
-
-        $rows = Testimonial::query()
-            ->where(function ($inner) use ($query) {
-                $inner->where('quote', 'like', "%{$query}%")
-                    ->orWhere('author', 'like', "%{$query}%")
-                    ->orWhere('company', 'like', "%{$query}%");
-            })
-            ->limit(self::PER_SOURCE_LIMIT)
-            ->get();
-
-        return $this->group('testimonials', 'Testimonials', $rows->map(fn (Testimonial $testimonial): array => [
-            'id' => 'testimonial:'.$testimonial->id,
-            'title' => $testimonial->author.($testimonial->company ? ' · '.$testimonial->company : ''),
-            'snippet' => Str::limit($testimonial->quote, 100),
-            'href' => '/admin/testimonials',
-        ])->values()->all());
+        return $this->source($user, 'testimonials', 'Testimonials', 'testimonials', function () use ($query): array {
+            return Testimonial::query()
+                ->where(function ($inner) use ($query) {
+                    $inner->where('quote', 'like', "%{$query}%")
+                        ->orWhere('author', 'like', "%{$query}%")
+                        ->orWhere('company', 'like', "%{$query}%");
+                })
+                ->limit(self::PER_SOURCE_LIMIT)
+                ->get()
+                ->map(fn (Testimonial $testimonial): array => [
+                    'id' => 'testimonial:'.$testimonial->id,
+                    'title' => $testimonial->author.($testimonial->company ? ' · '.$testimonial->company : ''),
+                    'snippet' => Str::limit($testimonial->quote, 100),
+                    'href' => '/admin/testimonials',
+                ])->values()->all();
+        });
     }
 
     /**
@@ -204,58 +190,51 @@ class AdminSearchController extends Controller
      */
     private function faqs(?User $user, string $query): ?array
     {
-        if (! $user?->canAdmin('resources', 'view')) {
-            return null;
-        }
-
-        $rows = Faq::query()
-            ->where(function ($inner) use ($query) {
-                $inner->where('question', 'like', "%{$query}%")
-                    ->orWhere('answer', 'like', "%{$query}%");
-            })
-            ->limit(self::PER_SOURCE_LIMIT)
-            ->get();
-
-        return $this->group('faqs', 'FAQs', $rows->map(fn (Faq $faq): array => [
-            'id' => 'faq:'.$faq->id,
-            'title' => $faq->question,
-            'snippet' => Str::limit($faq->answer, 100),
-            'href' => '/admin/faqs',
-        ])->values()->all());
+        return $this->source($user, 'resources', 'FAQs', 'faqs', function () use ($query): array {
+            return Faq::query()
+                ->where(function ($inner) use ($query) {
+                    $inner->where('question', 'like', "%{$query}%")
+                        ->orWhere('answer', 'like', "%{$query}%");
+                })
+                ->limit(self::PER_SOURCE_LIMIT)
+                ->get()
+                ->map(fn (Faq $faq): array => [
+                    'id' => 'faq:'.$faq->id,
+                    'title' => $faq->question,
+                    'snippet' => Str::limit($faq->answer, 100),
+                    'href' => '/admin/faqs',
+                ])->values()->all();
+        });
     }
 
     /** @return array{key: string, label: string, items: array<int, array<string, mixed>>}|null */
     private function locations(?User $user, string $query): ?array
     {
-        if (! $user?->canAdmin('locations', 'view')) {
-            return null;
-        }
+        return $this->source($user, 'locations', 'Locations', 'locations', function () use ($query): array {
+            $offices = Location::query()
+                ->where('office_name', 'like', "%{$query}%")
+                ->limit(self::PER_SOURCE_LIMIT)
+                ->get()
+                ->map(fn (Location $location): array => [
+                    'id' => 'office:'.$location->id,
+                    'title' => $location->office_name,
+                    'snippet' => $location->address,
+                    'href' => '/admin/locations',
+                ]);
 
-        $offices = Location::query()
-            ->where('office_name', 'like', "%{$query}%")
-            ->limit(self::PER_SOURCE_LIMIT)
-            ->get()
-            ->map(fn (Location $location): array => [
-                'id' => 'office:'.$location->id,
-                'title' => $location->office_name,
-                'snippet' => $location->address,
-                'href' => '/admin/locations',
-            ]);
+            $countries = Country::query()
+                ->where('name', 'like', "%{$query}%")
+                ->limit(self::PER_SOURCE_LIMIT)
+                ->get()
+                ->map(fn (Country $country): array => [
+                    'id' => 'country:'.$country->id,
+                    'title' => $country->name,
+                    'snippet' => $country->region ?: '',
+                    'href' => '/admin/locations',
+                ]);
 
-        $countries = Country::query()
-            ->where('name', 'like', "%{$query}%")
-            ->limit(self::PER_SOURCE_LIMIT)
-            ->get()
-            ->map(fn (Country $country): array => [
-                'id' => 'country:'.$country->id,
-                'title' => $country->name,
-                'snippet' => $country->region ?: '',
-                'href' => '/admin/locations',
-            ]);
-
-        $rows = $offices->concat($countries)->take(self::PER_SOURCE_LIMIT)->values()->all();
-
-        return $this->group('locations', 'Locations', $rows);
+            return $offices->concat($countries)->take(self::PER_SOURCE_LIMIT)->values()->all();
+        });
     }
 
     /**
@@ -269,28 +248,24 @@ class AdminSearchController extends Controller
      */
     private function inquiries(?User $user, string $query): ?array
     {
-        if (! $user?->canAdmin('inquiries', 'view')) {
-            return null;
-        }
-
-        $leads = Lead::query()
-            ->where('type', 'contact')
-            ->whereNull('anonymized_at')
-            ->where(function ($inner) use ($query) {
-                $inner->where('name', 'like', "%{$query}%")
-                    ->orWhere('email', 'like', "%{$query}%")
-                    ->orWhere('subject', 'like', "%{$query}%");
-            })
-            ->limit(self::PER_SOURCE_LIMIT)
-            ->get()
-            ->map(fn (Lead $lead): array => [
-                'id' => 'lead:'.$lead->id,
-                'title' => $lead->name ?: $lead->email,
-                'snippet' => $lead->subject ?: Str::limit((string) $lead->message, 80),
-                'href' => '/admin/inquiries',
-            ]);
-
-        return $this->group('inquiries', 'Inquiries', $leads->values()->all());
+        return $this->source($user, 'inquiries', 'Inquiries', 'inquiries', function () use ($query): array {
+            return Lead::query()
+                ->where('type', 'contact')
+                ->whereNull('anonymized_at')
+                ->where(function ($inner) use ($query) {
+                    $inner->where('name', 'like', "%{$query}%")
+                        ->orWhere('email', 'like', "%{$query}%")
+                        ->orWhere('subject', 'like', "%{$query}%");
+                })
+                ->limit(self::PER_SOURCE_LIMIT)
+                ->get()
+                ->map(fn (Lead $lead): array => [
+                    'id' => 'lead:'.$lead->id,
+                    'title' => $lead->name ?: $lead->email,
+                    'snippet' => $lead->subject ?: Str::limit((string) $lead->message, 80),
+                    'href' => '/admin/inquiries',
+                ])->values()->all();
+        });
     }
 
     /** @return array{key: string, label: string, items: array<int, array<string, mixed>>}|null */
@@ -300,35 +275,14 @@ class AdminSearchController extends Controller
             return null;
         }
 
-        $resourceRequests = ResourceRequest::query()
-            ->with('item')
-            ->whereNull('anonymized_at')
-            ->where(function ($inner) use ($query) {
-                $inner->where('name', 'like', "%{$query}%")
-                    ->orWhere('email', 'like', "%{$query}%")
-                    ->orWhere('company', 'like', "%{$query}%")
-                    ->orWhereHas('item', fn ($item) => $item->where('title', 'like', "%{$query}%"));
-            })
-            ->limit(self::PER_SOURCE_LIMIT)
-            ->get()
-            ->map(fn (ResourceRequest $resourceRequest): array => [
+        $resourceRequests = $this->searchOrderRows(ResourceRequest::class, ['name', 'email', 'company'], $query, fn (ResourceRequest $resourceRequest): array => [
                 'id' => 'resource-request:'.$resourceRequest->id,
                 'title' => $resourceRequest->name ?: $resourceRequest->email,
                 'snippet' => $resourceRequest->company ?: '',
                 'href' => '/admin/orders',
             ]);
 
-        $orders = Order::query()
-            ->with('item')
-            ->whereNull('anonymized_at')
-            ->where(function ($inner) use ($query) {
-                $inner->where('reference', 'like', "%{$query}%")
-                    ->orWhere('email', 'like', "%{$query}%")
-                    ->orWhereHas('item', fn ($item) => $item->where('title', 'like', "%{$query}%"));
-            })
-            ->limit(self::PER_SOURCE_LIMIT)
-            ->get()
-            ->map(fn (Order $order): array => [
+        $orders = $this->searchOrderRows(Order::class, ['reference', 'email'], $query, fn (Order $order): array => [
                 'id' => 'order:'.$order->id,
                 'title' => $order->reference ?: $order->email,
                 'snippet' => $order->item?->title ?: '',
@@ -343,24 +297,21 @@ class AdminSearchController extends Controller
     /** @return array{key: string, label: string, items: array<int, array<string, mixed>>}|null */
     private function media(?User $user, string $query): ?array
     {
-        if (! $user?->canAdmin('media', 'view')) {
-            return null;
-        }
-
-        $rows = Media::query()
-            ->where(function ($inner) use ($query) {
-                $inner->where('file_name', 'like', "%{$query}%")
-                    ->orWhere('alt_text', 'like', "%{$query}%");
-            })
-            ->limit(self::PER_SOURCE_LIMIT)
-            ->get();
-
-        return $this->group('media', 'Media', $rows->map(fn (Media $media): array => [
-            'id' => 'media:'.$media->id,
-            'title' => $media->file_name,
-            'snippet' => $media->alt_text ?: $media->mime_type,
-            'href' => '/admin/media-library',
-        ])->values()->all());
+        return $this->source($user, 'media', 'Media', 'media', function () use ($query): array {
+            return Media::query()
+                ->where(function ($inner) use ($query) {
+                    $inner->where('file_name', 'like', "%{$query}%")
+                        ->orWhere('alt_text', 'like', "%{$query}%");
+                })
+                ->limit(self::PER_SOURCE_LIMIT)
+                ->get()
+                ->map(fn (Media $media): array => [
+                    'id' => 'media:'.$media->id,
+                    'title' => $media->file_name,
+                    'snippet' => $media->alt_text ?: $media->mime_type,
+                    'href' => '/admin/media-library',
+                ])->values()->all();
+        });
     }
 
     /**
@@ -374,24 +325,21 @@ class AdminSearchController extends Controller
      */
     private function services(?User $user, string $query): ?array
     {
-        if (! $user?->canAdmin('services', 'view')) {
-            return null;
-        }
-
-        $rows = Service::query()
-            ->where(function ($inner) use ($query) {
-                $inner->where('name', 'like', "%{$query}%")
-                    ->orWhere('headline', 'like', "%{$query}%");
-            })
-            ->limit(self::PER_SOURCE_LIMIT)
-            ->get(['id', 'name', 'headline', 'slug']);
-
-        return $this->group('services', 'Services', $rows->map(fn (Service $service): array => [
-            'id' => 'service:'.$service->id,
-            'title' => $service->name,
-            'snippet' => $service->headline ?: '',
-            'href' => '/admin/services',
-        ])->values()->all());
+        return $this->source($user, 'services', 'Services', 'services', function () use ($query): array {
+            return Service::query()
+                ->where(function ($inner) use ($query) {
+                    $inner->where('name', 'like', "%{$query}%")
+                        ->orWhere('headline', 'like', "%{$query}%");
+                })
+                ->limit(self::PER_SOURCE_LIMIT)
+                ->get(['id', 'name', 'headline', 'slug'])
+                ->map(fn (Service $service): array => [
+                    'id' => 'service:'.$service->id,
+                    'title' => $service->name,
+                    'snippet' => $service->headline ?: '',
+                    'href' => '/admin/services',
+                ])->values()->all();
+        });
     }
 
     /**
@@ -405,5 +353,78 @@ class AdminSearchController extends Controller
         }
 
         return ['key' => $key, 'label' => $label, 'items' => array_values($items)];
+    }
+
+    /** @param Closure(): array<int, array<string, mixed>> $rows */
+    private function source(?User $user, string $section, string $label, string $key, Closure $rows): ?array
+    {
+        if (! $user?->canAdmin($section, 'view')) {
+            return null;
+        }
+
+        return $this->group($key, $label, $rows());
+    }
+
+    /**
+     * Resource requests and orders share the same anonymization, item search,
+     * eager-loading, and result-limit rules; their source-specific fields and
+     * projections remain supplied by the caller.
+     *
+     * @param class-string<ResourceRequest|Order> $model
+     * @param list<string> $columns
+     * @return Collection<int, array<string, mixed>>
+     */
+    private function searchOrderRows(string $model, array $columns, string $query, Closure $map): Collection
+    {
+        return $model::query()
+            ->with('item')
+            ->whereNull('anonymized_at')
+            ->where(function ($inner) use ($columns, $query): void {
+                foreach ($columns as $index => $column) {
+                    $method = $index === 0 ? 'where' : 'orWhere';
+                    $inner->{$method}($column, 'like', "%{$query}%");
+                }
+
+                $inner->orWhereHas('item', fn ($item) => $item->where('title', 'like', "%{$query}%"));
+            })
+            ->limit(self::PER_SOURCE_LIMIT)
+            ->get()
+            ->map($map);
+    }
+
+    /**
+     * Shared page-search query and projection. The two page kinds retain
+     * their original fields and destinations through the supplied callbacks.
+     *
+     * @param list<string> $searchColumns
+     * @param list<string>|null $slugs
+     * @return Collection<int, array<string, mixed>>
+     */
+    private function searchPages(
+        string $query,
+        string $kind,
+        array $searchColumns,
+        ?array $slugs,
+        callable $title,
+        callable $snippet,
+        callable $href,
+    ): Collection {
+        return Page::query()
+            ->where('kind', $kind)
+            ->when($slugs !== null, fn ($builder) => $builder->whereIn('slug', $slugs))
+            ->where(function ($inner) use ($query, $searchColumns): void {
+                foreach ($searchColumns as $index => $column) {
+                    $method = $index === 0 ? 'where' : 'orWhere';
+                    $inner->{$method}($column, 'like', "%{$query}%");
+                }
+            })
+            ->limit(self::PER_SOURCE_LIMIT)
+            ->get()
+            ->map(fn (Page $page): array => [
+                'id' => 'page:'.$page->id,
+                'title' => $title($page),
+                'snippet' => $snippet($page),
+                'href' => $href($page),
+            ]);
     }
 }

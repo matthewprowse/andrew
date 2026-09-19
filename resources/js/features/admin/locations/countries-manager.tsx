@@ -1,5 +1,6 @@
 import { router } from '@inertiajs/react';
 import { useImperativeHandle, useMemo, useState, type ReactNode } from 'react';
+import { useAdminMutation } from '@/hooks/use-admin-mutation';
 import { ArrowDown, ArrowUp } from 'lucide-react';
 import {
     columnFilteringFeature,
@@ -116,8 +117,12 @@ export function CountriesManager({
     countries: Country[];
     ref?: React.Ref<CountriesManagerHandle>;
 }) {
-    const [processing, setProcessing] = useState(false);
-    const [errors, setErrors] = useState<Record<string, string>>({});
+    const {
+        processing,
+        errors,
+        clearErrors,
+        run: runMutation,
+    } = useAdminMutation();
     const [selectedCountry, setSelectedCountry] = useState<Country | null>(
         null,
     );
@@ -149,7 +154,7 @@ export function CountriesManager({
         .filter((column) => column.getCanSort());
 
     function openCreate() {
-        setErrors({});
+        clearErrors();
         setEditingId(null);
         setDraft({ ...emptyDraft, sortOrder: String(countries.length + 1) });
         setIsFormOpen(true);
@@ -158,7 +163,7 @@ export function CountriesManager({
     useImperativeHandle(ref, () => ({ openCreate }));
 
     function openEdit(country: Country) {
-        setErrors({});
+        clearErrors();
         setEditingId(country.id);
         setDraft({
             name: country.name,
@@ -180,8 +185,6 @@ export function CountriesManager({
     }
 
     function handleSave() {
-        setProcessing(true);
-        setErrors({});
         const payload = {
             name: draft.name,
             slug: draft.slug,
@@ -190,16 +193,17 @@ export function CountriesManager({
             sortOrder: draft.sortOrder,
             status: draft.status.toLowerCase(),
         };
-        const options = {
-            preserveScroll: true,
-            onSuccess: () => setIsFormOpen(false),
-            onError: (validationErrors: Record<string, string>) =>
-                setErrors(validationErrors),
-            onFinish: () => setProcessing(false),
-        };
-        if (editingId)
-            router.patch(`/admin/countries/${editingId}`, payload, options);
-        else router.post('/admin/countries', payload, options);
+        runMutation(
+            (options) =>
+                editingId
+                    ? router.patch(
+                          `/admin/countries/${editingId}`,
+                          payload,
+                          options,
+                      )
+                    : router.post('/admin/countries', payload, options),
+            { onSuccess: () => setIsFormOpen(false) },
+        );
     }
 
     return (

@@ -20,6 +20,12 @@ class EstimatorCity extends Model
         return static::query()->where('status', 'active');
     }
 
+    /** @return Builder<static> */
+    public function scopeOrdered(Builder $query): Builder
+    {
+        return $query->orderBy('country')->orderBy('city');
+    }
+
     /** @return array<string, mixed> */
     public function adminData(): array
     {

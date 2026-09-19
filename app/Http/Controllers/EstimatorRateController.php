@@ -19,7 +19,7 @@ class EstimatorRateController extends Controller
     {
         $services = EstimatorService::active()->whereIn('name', EstimatorCalculator::DESTINATION_RATED_SERVICES)
             ->orderBy('sort_order')->get(['id', 'name']);
-        $cities = EstimatorCity::active()->orderBy('country')->orderBy('city')->get(['id', 'city', 'country']);
+        $cities = $this->activeCities();
 
         $rates = EstimatorDestinationRate::whereIn('estimator_service_id', $services->pluck('id'))
             ->whereIn('estimator_city_id', $cities->pluck('id'))->get()
@@ -59,7 +59,7 @@ class EstimatorRateController extends Controller
     {
         $services = EstimatorService::active()->whereIn('name', EstimatorCalculator::ROUTE_RATED_SERVICES)
             ->orderBy('sort_order')->get(['id', 'name']);
-        $cities = EstimatorCity::active()->orderBy('country')->orderBy('city')->get(['id', 'city', 'country']);
+        $cities = $this->activeCities();
 
         $rates = EstimatorRouteRate::whereIn('estimator_service_id', $services->pluck('id'))
             ->whereIn('origin_city_id', $cities->pluck('id'))->whereIn('destination_city_id', $cities->pluck('id'))->get()
@@ -102,7 +102,7 @@ class EstimatorRateController extends Controller
     public function cityServiceRates(): Response
     {
         $services = EstimatorService::active()->where('category', 'services')->orderBy('sort_order')->get(['id', 'name']);
-        $cities = EstimatorCity::active()->orderBy('country')->orderBy('city')->get(['id', 'city', 'country']);
+        $cities = $this->activeCities();
 
         $rates = EstimatorRelocationServiceRate::whereIn('estimator_service_id', $services->pluck('id'))
             ->whereIn('estimator_city_id', $cities->pluck('id'))->get()
@@ -136,5 +136,11 @@ class EstimatorRateController extends Controller
         }
 
         return to_route('admin.estimator.city-service-rates');
+    }
+
+    /** @return \Illuminate\Database\Eloquent\Collection<int, EstimatorCity> */
+    private function activeCities(): \Illuminate\Database\Eloquent\Collection
+    {
+        return EstimatorCity::active()->ordered()->get(['id', 'city', 'country']);
     }
 }

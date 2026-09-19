@@ -1,12 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { useForm } from '@inertiajs/react';
 import {
-    ArrowDown,
-    ArrowUp,
-    LayoutGrid,
-    Table as TableIcon,
-} from 'lucide-react';
-import {
     createColumnHelper,
     createSortedRowModel,
     rowSortingFeature,
@@ -27,6 +21,7 @@ import { RichTextEditor } from '@/components/admin/rich-text-editor';
 import Heading from '@/components/heading';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { AdminTableToolbar } from '@/components/admin/admin-table-toolbar';
 import { DataTable } from '@/components/ui/data-table';
 import AdminWorkspaceLayout from '@/layouts/admin-workspace-layout';
 import {
@@ -40,11 +35,6 @@ import { Dialog, DialogClose } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from '@/components/ui/popover';
-import {
     Select,
     SelectContent,
     SelectItem,
@@ -53,7 +43,6 @@ import {
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { FeaturedServicesEditor } from '@/features/admin/services/featured-services-editor';
 import type { ServiceRecord } from '@/types/service';
 import type { ResourceItemAdminRecord } from '@/types/resource';
@@ -374,45 +363,167 @@ export function ServicesManager({
                         <div>
                             <Label>Additional Form Fields</Label>
                             <p className="text-muted-foreground mt-1 text-xs">
-                                Default contact fields always remain. Add service-specific questions here.
+                                Default contact fields always remain. Add
+                                service-specific questions here.
                             </p>
                         </div>
                         {form.data.contact_fields.map((field, index) => (
-                            <div key={`${field.key}-${index}`} className="rounded-md border p-3">
+                            <div
+                                key={`${field.key}-${index}`}
+                                className="rounded-md border p-3"
+                            >
                                 <div className="grid gap-3 sm:grid-cols-2">
-                                    <Input placeholder="Field label" value={field.label} onChange={(event) => { const fields = [...form.data.contact_fields]; fields[index] = { ...field, label: event.target.value }; form.setData('contact_fields', fields); }} />
-                                    <Input placeholder="field_key" value={field.key} onChange={(event) => { const fields = [...form.data.contact_fields]; fields[index] = { ...field, key: event.target.value.replace(/[^a-zA-Z0-9_-]/g, '_') }; form.setData('contact_fields', fields); }} />
-                                    <Select value={field.type} onValueChange={(value) => { const fields = [...form.data.contact_fields]; fields[index] = { ...field, type: value as typeof field.type }; form.setData('contact_fields', fields); }}>
-                                        <SelectTrigger><SelectValue /></SelectTrigger>
+                                    <Input
+                                        placeholder="Field label"
+                                        value={field.label}
+                                        onChange={(event) => {
+                                            const fields = [
+                                                ...form.data.contact_fields,
+                                            ];
+                                            fields[index] = {
+                                                ...field,
+                                                label: event.target.value,
+                                            };
+                                            form.setData(
+                                                'contact_fields',
+                                                fields,
+                                            );
+                                        }}
+                                    />
+                                    <Input
+                                        placeholder="field_key"
+                                        value={field.key}
+                                        onChange={(event) => {
+                                            const fields = [
+                                                ...form.data.contact_fields,
+                                            ];
+                                            fields[index] = {
+                                                ...field,
+                                                key: event.target.value.replace(
+                                                    /[^a-zA-Z0-9_-]/g,
+                                                    '_',
+                                                ),
+                                            };
+                                            form.setData(
+                                                'contact_fields',
+                                                fields,
+                                            );
+                                        }}
+                                    />
+                                    <Select
+                                        value={field.type}
+                                        onValueChange={(value) => {
+                                            const fields = [
+                                                ...form.data.contact_fields,
+                                            ];
+                                            fields[index] = {
+                                                ...field,
+                                                type: value as typeof field.type,
+                                            };
+                                            form.setData(
+                                                'contact_fields',
+                                                fields,
+                                            );
+                                        }}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="text">Text</SelectItem>
-                                            <SelectItem value="email">Email</SelectItem>
-                                            <SelectItem value="tel">Phone</SelectItem>
-                                            <SelectItem value="textarea">Long answer</SelectItem>
+                                            <SelectItem value="text">
+                                                Text
+                                            </SelectItem>
+                                            <SelectItem value="email">
+                                                Email
+                                            </SelectItem>
+                                            <SelectItem value="tel">
+                                                Phone
+                                            </SelectItem>
+                                            <SelectItem value="textarea">
+                                                Long answer
+                                            </SelectItem>
                                         </SelectContent>
                                     </Select>
-                                    <Input placeholder="Placeholder (optional)" value={field.placeholder ?? ''} onChange={(event) => { const fields = [...form.data.contact_fields]; fields[index] = { ...field, placeholder: event.target.value }; form.setData('contact_fields', fields); }} />
+                                    <Input
+                                        placeholder="Placeholder (optional)"
+                                        value={field.placeholder ?? ''}
+                                        onChange={(event) => {
+                                            const fields = [
+                                                ...form.data.contact_fields,
+                                            ];
+                                            fields[index] = {
+                                                ...field,
+                                                placeholder: event.target.value,
+                                            };
+                                            form.setData(
+                                                'contact_fields',
+                                                fields,
+                                            );
+                                        }}
+                                    />
                                 </div>
                                 <div className="mt-3 flex items-center justify-between">
                                     <Button
                                         type="button"
                                         size="sm"
-                                        variant={field.required ? 'secondary' : 'outline'}
+                                        variant={
+                                            field.required
+                                                ? 'secondary'
+                                                : 'outline'
+                                        }
                                         onClick={() => {
-                                            const fields = [...form.data.contact_fields];
-                                            fields[index] = { ...field, required: !field.required };
-                                            form.setData('contact_fields', fields);
+                                            const fields = [
+                                                ...form.data.contact_fields,
+                                            ];
+                                            fields[index] = {
+                                                ...field,
+                                                required: !field.required,
+                                            };
+                                            form.setData(
+                                                'contact_fields',
+                                                fields,
+                                            );
                                         }}
                                     >
-                                        {field.required ? 'Required' : 'Optional'}
+                                        {field.required
+                                            ? 'Required'
+                                            : 'Optional'}
                                     </Button>
-                                    <Button type="button" variant="ghost" size="sm" onClick={() => form.setData('contact_fields', form.data.contact_fields.filter((_, fieldIndex) => fieldIndex !== index))}>
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() =>
+                                            form.setData(
+                                                'contact_fields',
+                                                form.data.contact_fields.filter(
+                                                    (_, fieldIndex) =>
+                                                        fieldIndex !== index,
+                                                ),
+                                            )
+                                        }
+                                    >
                                         <h6>Delete</h6>
                                     </Button>
                                 </div>
                             </div>
                         ))}
-                        <Button type="button" variant="outline" onClick={() => form.setData('contact_fields', [...form.data.contact_fields, { key: `question_${form.data.contact_fields.length + 1}`, label: '', type: 'text', required: false, placeholder: '' }])}>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() =>
+                                form.setData('contact_fields', [
+                                    ...form.data.contact_fields,
+                                    {
+                                        key: `question_${form.data.contact_fields.length + 1}`,
+                                        label: '',
+                                        type: 'text',
+                                        required: false,
+                                        placeholder: '',
+                                    },
+                                ])
+                            }
+                        >
                             Add Form Field
                         </Button>
                     </div>
@@ -483,60 +594,14 @@ export function ServicesManager({
             title="Services"
             description={PAGE_DESCRIPTION}
             headerAction={
-                <>
-                    <ToggleGroup
-                        type="single"
-                        variant="outline"
-                        size="sm"
-                        value={viewMode}
-                        onValueChange={(value) => {
-                            if (value) setViewMode(value as 'table' | 'cards');
-                        }}
-                    >
-                        <ToggleGroupItem value="table" aria-label="Table view">
-                            <TableIcon className="size-4" />
-                        </ToggleGroupItem>
-                        <ToggleGroupItem value="cards" aria-label="Card view">
-                            <LayoutGrid className="size-4" />
-                        </ToggleGroupItem>
-                    </ToggleGroup>
-                    <Input
-                        placeholder="Search"
-                        value={search}
-                        onChange={(event) => setSearch(event.target.value)}
-                        className="h-8 w-96"
-                    />
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <Button variant="secondary">Sort</Button>
-                        </PopoverTrigger>
-                        <PopoverContent
-                            align="end"
-                            sideOffset={8}
-                            className="w-56"
-                        >
-                            {sortableColumns.map((column) => {
-                                const sorted = column.getIsSorted();
-                                return (
-                                    <button
-                                        key={column.id}
-                                        onClick={column.getToggleSortingHandler()}
-                                        className="hover:bg-accent hover:text-accent-foreground relative flex w-full items-center gap-1.5 rounded-md py-1 pr-8 pl-1.5 text-left text-sm select-none"
-                                    >
-                                        {serviceColumnLabels[column.id]}
-                                        <span className="pointer-events-none absolute right-2 flex size-4 items-center justify-center">
-                                            {sorted === 'asc' && (
-                                                <ArrowUp className="size-3.5" />
-                                            )}
-                                            {sorted === 'desc' && (
-                                                <ArrowDown className="size-3.5" />
-                                            )}
-                                        </span>
-                                    </button>
-                                );
-                            })}
-                        </PopoverContent>
-                    </Popover>
+                <AdminTableToolbar
+                    search={search}
+                    onSearchChange={setSearch}
+                    sortColumns={sortableColumns}
+                    sortLabels={serviceColumnLabels}
+                    viewMode={viewMode}
+                    onViewModeChange={setViewMode}
+                >
                     <Button
                         type="button"
                         variant="secondary"
@@ -544,7 +609,7 @@ export function ServicesManager({
                     >
                         New Service
                     </Button>
-                </>
+                </AdminTableToolbar>
             }
         >
             <Heading

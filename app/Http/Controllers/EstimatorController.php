@@ -15,7 +15,7 @@ class EstimatorController extends Controller
     public function show(): Response
     {
         return Inertia::render('estimator', [
-            'cities' => EstimatorCity::active()->orderBy('country')->orderBy('city')->get()
+            'cities' => EstimatorCity::active()->ordered()->get()
                 ->map(fn (EstimatorCity $city) => $city->publicData()),
             'services' => EstimatorService::active()->orderBy('category')->orderBy('sort_order')->get()
                 ->map(fn (EstimatorService $service) => $service->publicData()),

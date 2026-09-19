@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/sheet';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { cn } from '@/lib/utils';
+import { SiteLink } from '@/components/site-link';
 
 export function SiteHeader() {
     const { publicSettings } = usePage<{
@@ -73,12 +74,12 @@ export function SiteHeader() {
                         <SheetContent side="left" className="w-72">
                             <SheetHeader>
                                 <SheetTitle asChild>
-                                    <a
+                                    <SiteLink
                                         href="/"
                                         className="text-lg font-semibold"
                                     >
                                         Relocation Africa
-                                    </a>
+                                    </SiteLink>
                                 </SheetTitle>
                             </SheetHeader>
                             <nav className="flex flex-col gap-1 p-4 pt-0">
@@ -96,7 +97,9 @@ export function SiteHeader() {
                                             }
                                             className="justify-start font-normal"
                                         >
-                                            <a href={item.href}>{item.title}</a>
+                                            <SiteLink href={item.href}>
+                                                {item.title}
+                                            </SiteLink>
                                         </Button>
                                         {item.children?.filter(
                                             (child) => child.href !== item.href,
@@ -121,13 +124,13 @@ export function SiteHeader() {
                                                             }
                                                             className="justify-start font-normal"
                                                         >
-                                                            <a
+                                                            <SiteLink
                                                                 href={
                                                                     child.href
                                                                 }
                                                             >
                                                                 {child.title}
-                                                            </a>
+                                                            </SiteLink>
                                                         </Button>
                                                     ))}
                                             </div>
@@ -139,9 +142,9 @@ export function SiteHeader() {
                     </Sheet>
                 </div>
 
-                <a href="/" className="text-lg font-semibold">
+                <SiteLink href="/" className="text-lg font-semibold">
                     Relocation Africa
-                </a>
+                </SiteLink>
 
                 <nav className="ml-auto hidden items-center gap-1 lg:flex">
                     {navItems.map((item) => {
@@ -160,7 +163,9 @@ export function SiteHeader() {
                                     variant={isActive ? 'secondary' : 'ghost'}
                                     className="font-normal"
                                 >
-                                    <a href={item.href}>{item.title}</a>
+                                    <SiteLink href={item.href}>
+                                        {item.title}
+                                    </SiteLink>
                                 </Button>
                             );
                         }
@@ -193,7 +198,7 @@ export function SiteHeader() {
                                     onMouseLeave={closeMenu}
                                 >
                                     {item.children.map((child) => (
-                                        <a
+                                        <SiteLink
                                             key={child.href}
                                             href={child.href}
                                             className={cn(
@@ -203,7 +208,7 @@ export function SiteHeader() {
                                             )}
                                         >
                                             {child.title}
-                                        </a>
+                                        </SiteLink>
                                     ))}
                                 </PopoverContent>
                             </Popover>

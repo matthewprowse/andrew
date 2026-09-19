@@ -27,6 +27,12 @@ class Country extends Model
         return static::query()->where('status', 'published');
     }
 
+    /** @return Builder<static> */
+    public function scopeOrdered(Builder $query): Builder
+    {
+        return $query->orderBy('sort_order')->orderBy('id');
+    }
+
     /** @return array<string, mixed> */
     public function publicData(): array
     {

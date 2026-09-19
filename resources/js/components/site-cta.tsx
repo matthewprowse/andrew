@@ -1,5 +1,6 @@
 import { usePage } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
+import { SiteLink } from '@/components/site-link';
 import { trackEvent } from '@/lib/analytics';
 import type { PublicSettings } from '@/types/site-settings';
 export function SiteCta({
@@ -35,14 +36,14 @@ export function SiteCta({
             )}
             {destination && buttonLabel && (
                 <Button asChild className="mt-6">
-                    <a
+                    <SiteLink
                         href={destination}
                         onClick={() =>
                             trackEvent('cta_click', { label: buttonLabel })
                         }
                     >
                         {buttonLabel}
-                    </a>
+                    </SiteLink>
                 </Button>
             )}
         </section>

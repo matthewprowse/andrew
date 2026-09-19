@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Faq;
-use App\Models\Service;
 use App\Models\Testimonial;
+use App\Support\AdminOptions;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -61,18 +61,6 @@ class AdminReusableContentController extends Controller
     /** @return Collection<int, array{id: string, name: string}> */
     private function services(): Collection
     {
-        return Service::query()
-            ->orderBy('sort_order')
-            ->orderBy('id')
-            ->get(['id', 'name'])
-            ->map(fn (Service $service) => [
-                'id' => $this->serviceId($service->id),
-                'name' => $service->name,
-            ]);
-    }
-
-    private function serviceId(int|string|null $id): string
-    {
-        return (string) $id;
+        return AdminOptions::services();
     }
 }

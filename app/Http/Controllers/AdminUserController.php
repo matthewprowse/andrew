@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\AssignRoleRequest;
 use App\Http\Requests\CreateAdminUserRequest;
 use App\Models\AuditLog;
-use App\Models\Role;
 use App\Models\User;
+use App\Support\AdminOptions;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
@@ -21,15 +21,8 @@ class AdminUserController extends Controller
         return Inertia::render('admin/users/index', [
             'sections' => config('admin.sections'),
             'actions' => config('admin.actions'),
-            'roles' => Role::orderBy('name')->get()->map(fn (Role $role) => $role->adminData()),
-            'users' => User::orderBy('name')->get()->map(fn (User $user) => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'roleId' => $user->role_id,
-                'roleName' => $user->role?->name,
-                'isRootAdmin' => $user->isRootAdmin(),
-            ]),
+            'roles' => AdminOptions::roles(),
+            'users' => AdminOptions::users(),
         ]);
     }
 
