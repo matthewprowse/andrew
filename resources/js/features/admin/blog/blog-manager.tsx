@@ -1,5 +1,6 @@
 import { router, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
+import { ADMIN_PAGE_DESCRIPTION } from '@/lib/admin-copy';
 import { Newspaper } from 'lucide-react';
 import {
     columnFilteringFeature,
@@ -14,6 +15,8 @@ import {
     useTable,
 } from '@tanstack/react-table';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { AdminDetail as Detail } from '@/components/admin/admin-detail';
+import { AdminField as Field } from '@/components/admin/admin-field';
 import { useAdminMutation } from '@/hooks/use-admin-mutation';
 import {
     AdminDialogContent,
@@ -104,8 +107,7 @@ const emptyDraft = {
     serviceIds: [] as string[],
 };
 
-const PAGE_DESCRIPTION =
-    'Lorem ipsum dolor sit amet, consectetur adipiscing elit.';
+const PAGE_DESCRIPTION = ADMIN_PAGE_DESCRIPTION;
 
 const columnLabels: Record<string, string> = {
     title: 'Title',
@@ -666,31 +668,5 @@ export function BlogManager({
                 </AdminDialogContent>
             </Dialog>
         </AdminWorkspaceLayout>
-    );
-}
-
-function Detail({ label, value }: { label: string; value: string }) {
-    return (
-        <div className="grid gap-1">
-            <span className="text-muted-foreground">{label}</span>
-            <span className="whitespace-pre-wrap">{value || '—'}</span>
-        </div>
-    );
-}
-
-function Field({
-    label,
-    htmlFor,
-    children,
-}: {
-    label: string;
-    htmlFor: string;
-    children: React.ReactNode;
-}) {
-    return (
-        <div className="grid gap-2">
-            <Label htmlFor={htmlFor}>{label}</Label>
-            {children}
-        </div>
     );
 }

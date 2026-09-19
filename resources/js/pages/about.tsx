@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import type { PageContent } from '@/types/page-content';
 import type { TeamMemberRecord } from '@/types/team';
+import { initials } from '@/lib/initials';
 
 type JobOpening = {
     id: string;
@@ -38,15 +39,6 @@ const months = [
 function formatDate(date: string) {
     const [year, month, day] = date.split('-').map(Number);
     return `${String(day).padStart(2, '0')} ${months[month - 1]} ${year}`;
-}
-
-function initials(name: string) {
-    return name
-        .split(' ')
-        .filter(Boolean)
-        .slice(0, 2)
-        .map((part) => part[0]?.toUpperCase())
-        .join('');
 }
 
 const heroSubheadingFallback =

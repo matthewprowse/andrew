@@ -164,6 +164,7 @@ function SiteThemeLayout({ children }: { children: ReactNode }) {
 
         if (isDark) root.setAttribute('data-marketing-dark', 'true');
         else root.removeAttribute('data-marketing-dark');
+        root.removeAttribute('data-marketing-bootstrap-dark');
 
         return () => {
             // React cleans up the outgoing layout before committing the next

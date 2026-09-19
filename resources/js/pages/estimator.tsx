@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { EstimatorAccessDialog } from '@/components/estimator/estimator-access-dialog';
 import { PageMeta } from '@/components/page-meta';
+import { getCsrfToken } from '@/lib/csrf';
+import { formatMoney } from '@/lib/estimator-pricing';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
 import { Button } from '@/components/ui/button';
@@ -44,11 +46,6 @@ const howItWorks = [
     },
 ];
 
-function getCsrfToken(): string {
-    const match = document.cookie.match(/XSRF-TOKEN=([^;]+)/);
-    return match ? decodeURIComponent(match[1]) : '';
-}
-
 type FormState = {
     originCityId: string;
     destinationCityId: string;
@@ -62,10 +59,6 @@ type FormState = {
     pets: string;
     visaAmount: string;
 };
-
-function formatMoney(amount: number, currency: string): string {
-    return `${currency === 'USD' ? '$' : currency + ' '}${Math.round(amount).toLocaleString('en-US')}`;
-}
 
 function Calculator({
     cities,

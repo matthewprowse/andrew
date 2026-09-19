@@ -17,6 +17,7 @@ import {
     type SettingsEditorHandle,
 } from '@/features/admin/settings/settings-editor';
 import AdminWorkspaceLayout from '@/layouts/admin-workspace-layout';
+import { ADMIN_PAGE_DESCRIPTION } from '@/lib/admin-copy';
 import type { Settings } from '@/types/site-settings';
 
 const settingsSections = [
@@ -41,8 +42,7 @@ const settingsSections = [
     },
 ];
 
-const PAGE_DESCRIPTION =
-    'Lorem ipsum dolor sit amet, consectetur adipiscing elit.';
+const PAGE_DESCRIPTION = ADMIN_PAGE_DESCRIPTION;
 
 export default function CompanyIndex({
     section,

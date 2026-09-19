@@ -48,10 +48,8 @@ class EstimatorCalculator
     {
         $chosen = $input['selected'];
 
-        $moveServices = EstimatorService::active()->where('category', 'costs')
-            ->orderBy('sort_order')->get()->filter(fn (EstimatorService $s) => in_array($s->name, $chosen, true));
-        $destinationServices = EstimatorService::active()->where('category', 'services')
-            ->orderBy('sort_order')->get()->filter(fn (EstimatorService $s) => in_array($s->name, $chosen, true));
+        $moveServices = $this->selectedServices('costs', $chosen);
+        $destinationServices = $this->selectedServices('services', $chosen);
 
         $moveLines = $moveServices->map(fn (EstimatorService $service) => $this->moveCostLine($service, $input))->values();
         $serviceLines = $destinationServices->map(fn (EstimatorService $service) => $this->destinationServiceLine($service, $input))->values();
@@ -201,7 +199,7 @@ class EstimatorCalculator
     /** @param  array<string, mixed>  $input */
     private function routeAmount(string $serviceName, array $input): ?float
     {
-        $service = EstimatorService::where('name', $serviceName)->first();
+        $service = $this->serviceByName($serviceName);
         if (! $service) {
             return null;
         }
@@ -221,7 +219,7 @@ class EstimatorCalculator
     /** @param  array<string, mixed>  $input */
     private function destinationAmount(string $serviceName, array $input): ?float
     {
-        $service = EstimatorService::where('name', $serviceName)->first();
+        $service = $this->serviceByName($serviceName);
         if (! $service) {
             return null;
         }
@@ -261,5 +259,18 @@ class EstimatorCalculator
         }
 
         return is_numeric($value) ? (float) $value : null;
+    }
+
+    /** @param array<int, string> $chosen */
+    private function selectedServices(string $category, array $chosen)
+    {
+        return EstimatorService::active()->where('category', $category)
+            ->orderBy('sort_order')->get()
+            ->filter(fn (EstimatorService $service) => in_array($service->name, $chosen, true));
+    }
+
+    private function serviceByName(string $name): ?EstimatorService
+    {
+        return EstimatorService::where('name', $name)->first();
     }
 }

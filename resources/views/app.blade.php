@@ -28,6 +28,15 @@
             html.dark {
                 background-color: oklch(0.145 0 0);
             }
+
+            /* The initial Inertia document has no React marketing wrapper yet.
+             * Keep the first paint dark when the requested marketing page is
+             * configured for dark mode. The bootstrap attribute is removed
+             * as soon as the client theme bridge mounts. */
+            html[data-marketing-bootstrap-dark] body {
+                background-color: oklch(0.145 0 0);
+                color: oklch(0.985 0 0);
+            }
         </style>
 
         <link rel="icon" href="/favicon.ico" sizes="any">
@@ -44,5 +53,32 @@
     </head>
     <body class="font-sans antialiased">
         <x-inertia::app />
+
+        <script>
+            (function() {
+                try {
+                    const app = document.getElementById('app');
+                    const page = app?.dataset.page ? JSON.parse(app.dataset.page) : null;
+                    const marketingPages = [
+                        'page', 'contact', 'service', 'services', 'resource',
+                        'estimator', 'locations', 'country', 'error', 'checkout',
+                        'about', 'blog', 'blog-post'
+                    ];
+                    const theme = page?.component && marketingPages.includes(page.component)
+                        ? page?.props?.publicSettings?.site?.marketingTheme
+                        : null;
+                    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    const isDark = theme?.mode === 'dark' ||
+                        (theme?.mode === 'system' && prefersDark);
+
+                    if (isDark) {
+                        document.documentElement.setAttribute('data-marketing-bootstrap-dark', 'true');
+                    }
+                } catch (_) {
+                    // React will apply the theme after mount if the bootstrap
+                    // data is unavailable or malformed.
+                }
+            })();
+        </script>
     </body>
 </html>

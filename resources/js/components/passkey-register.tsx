@@ -78,13 +78,13 @@ export default function PasskeyRegistration({ onSuccess }: Props) {
             className="border-border bg-muted/50 space-y-4 rounded-lg border p-4"
         >
             <div className="grid gap-2">
-                <Label htmlFor="passkey-name">Passkey name</Label>
+                <Label htmlFor="passkey-name">Passkey Name</Label>
                 <Input
                     id="passkey-name"
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="e.g., MacBook Pro, iPhone"
+                    placeholder="E.g., MacBook Pro, iPhone"
                     className="border-foreground/20 mt-1 block w-full"
                     autoFocus
                 />

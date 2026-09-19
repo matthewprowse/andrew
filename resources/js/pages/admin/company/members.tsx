@@ -26,6 +26,7 @@ import {
     type UserRecord,
 } from '@/features/admin/users/users-manager';
 import AdminWorkspaceLayout from '@/layouts/admin-workspace-layout';
+import { ADMIN_PAGE_DESCRIPTION } from '@/lib/admin-copy';
 import {
     Sidebar,
     SidebarContent,
@@ -52,8 +53,7 @@ type MembersProps = {
     users?: UserRecord[];
 };
 
-const PAGE_DESCRIPTION =
-    'Lorem ipsum dolor sit amet, consectetur adipiscing elit.';
+const PAGE_DESCRIPTION = ADMIN_PAGE_DESCRIPTION;
 
 function SectionSidebar({
     activeSection,

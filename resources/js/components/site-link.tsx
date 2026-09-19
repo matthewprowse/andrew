@@ -16,7 +16,9 @@ type SiteLinkProps = {
  * ordinary browser behaviour.
  */
 export function SiteLink({ href, ...props }: SiteLinkProps) {
-    const isInternal = href.startsWith('/') && !href.startsWith('//');
+    const hasProtocol = /^[a-z][a-z\d+.-]*:/i.test(href);
+    const isInternal =
+        !hasProtocol && !href.startsWith('//') && !href.startsWith('#');
 
     return isInternal ? (
         <Link href={href} {...props} />

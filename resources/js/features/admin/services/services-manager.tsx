@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react';
+import { ADMIN_PAGE_DESCRIPTION } from '@/lib/admin-copy';
 import { useForm } from '@inertiajs/react';
 import {
     createColumnHelper,
@@ -47,8 +48,7 @@ import { FeaturedServicesEditor } from '@/features/admin/services/featured-servi
 import type { ServiceRecord } from '@/types/service';
 import type { ResourceItemAdminRecord } from '@/types/resource';
 
-const PAGE_DESCRIPTION =
-    'Lorem ipsum dolor sit amet, consectetur adipiscing elit.';
+const PAGE_DESCRIPTION = ADMIN_PAGE_DESCRIPTION;
 
 const empty = {
     name: '',

@@ -8,6 +8,8 @@ use Illuminate\Support\Collection;
 
 class ResourceCategory extends Model
 {
+    public const FORMAT_SLUGS = ['brochures', 'webinars', 'books'];
+
     protected $fillable = ['slug', 'title', 'layout', 'kind'];
 
     /** @return HasMany<ResourceItem, $this> */

@@ -63,22 +63,11 @@ import type {
 } from '@/types/block-page';
 import type { PageRevisionSummary } from '@/types/page-revision';
 import type { Auth } from '@/types/auth';
+import { getCsrfToken } from '@/lib/csrf';
+import { formatDateTime } from '@/lib/format-date-time';
+import { ADMIN_PAGE_DESCRIPTION } from '@/lib/admin-copy';
 
-function getCsrfToken(): string {
-    const match = document.cookie.match(/XSRF-TOKEN=([^;]+)/);
-    return match ? decodeURIComponent(match[1]) : '';
-}
-
-function formatDateTime(iso: string): string {
-    if (!iso) return '';
-    return new Date(iso).toLocaleString(undefined, {
-        dateStyle: 'medium',
-        timeStyle: 'short',
-    });
-}
-
-const PAGE_DESCRIPTION =
-    'Lorem ipsum dolor sit amet, consectetur adipiscing elit.';
+const PAGE_DESCRIPTION = ADMIN_PAGE_DESCRIPTION;
 
 const revisionTableFeatures = tableFeatures({});
 const revisionColumnHelper = createColumnHelper<

@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
-import { ArrowDown, ArrowUp } from 'lucide-react';
 import {
     columnFilteringFeature,
     createColumnHelper,
@@ -26,6 +25,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
+import { AdminSortMenu } from '@/components/admin/admin-table-toolbar';
 import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import {
@@ -41,6 +41,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import AdminWorkspaceLayout from '@/layouts/admin-workspace-layout';
+import { ADMIN_PAGE_DESCRIPTION } from '@/lib/admin-copy';
 
 const PAGE_SIZE_OPTIONS = [25, 50, 100];
 
@@ -70,8 +71,7 @@ const TYPE_LABELS: Record<string, string> = {
     other: 'Other',
 };
 
-const PAGE_DESCRIPTION =
-    'Lorem ipsum dolor sit amet, consectetur adipiscing elit.';
+const PAGE_DESCRIPTION = ADMIN_PAGE_DESCRIPTION;
 
 const columnLabels: Record<string, string> = {
     userName: 'From',
@@ -213,37 +213,12 @@ export default function FeedbackIndex({
                         }
                         className="h-8 w-96"
                     />
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <Button variant="secondary">Sort</Button>
-                        </PopoverTrigger>
-                        <PopoverContent
-                            align="end"
-                            sideOffset={8}
-                            className="w-56"
-                        >
-                            {sortableColumns.map((column) => {
-                                const sorted = column.getIsSorted();
-                                return (
-                                    <button
-                                        key={column.id}
-                                        onClick={column.getToggleSortingHandler()}
-                                        className="hover:bg-accent hover:text-accent-foreground relative flex w-full items-center gap-1.5 rounded-md py-1 pr-8 pl-1.5 text-left text-sm select-none"
-                                    >
-                                        {columnLabels[column.id] ?? column.id}
-                                        <span className="pointer-events-none absolute right-2 flex size-4 items-center justify-center">
-                                            {sorted === 'asc' && (
-                                                <ArrowUp className="size-3.5" />
-                                            )}
-                                            {sorted === 'desc' && (
-                                                <ArrowDown className="size-3.5" />
-                                            )}
-                                        </span>
-                                    </button>
-                                );
-                            })}
-                        </PopoverContent>
-                    </Popover>
+                    <AdminSortMenu
+                        columns={sortableColumns}
+                        labels={columnLabels}
+                        align="end"
+                        variant="secondary"
+                    />
                     <Popover>
                         <PopoverTrigger asChild>
                             <Button variant="secondary">Filter</Button>

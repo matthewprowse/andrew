@@ -29,10 +29,10 @@ import { Dialog, DialogClose } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AdminWorkspaceLayout from '@/layouts/admin-workspace-layout';
+import { ADMIN_PAGE_DESCRIPTION } from '@/lib/admin-copy';
 import type { BlockCatalogueEntry } from '@/types/blocks';
 
-const PAGE_DESCRIPTION =
-    'Lorem ipsum dolor sit amet, consectetur adipiscing elit.';
+const PAGE_DESCRIPTION = ADMIN_PAGE_DESCRIPTION;
 
 type PageRow = {
     slug: string;

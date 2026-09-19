@@ -1,5 +1,6 @@
 import { router } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
+import { ADMIN_PAGE_DESCRIPTION } from '@/lib/admin-copy';
 import {
     createColumnHelper,
     createSortedRowModel,
@@ -58,8 +59,7 @@ const columnLabels: Record<string, string> = {
     uploadedAt: 'Date uploaded',
 };
 
-const PAGE_DESCRIPTION =
-    'Lorem ipsum dolor sit amet, consectetur adipiscing elit.';
+const PAGE_DESCRIPTION = ADMIN_PAGE_DESCRIPTION;
 
 const mediaTableFeatures = tableFeatures({
     rowSortingFeature,
@@ -126,6 +126,14 @@ function formatSize(size: number) {
     return `${Math.round(size / 1024)} KB`;
 }
 
+function mediaIndexUrl(page: number, search: string, type: TypeFilter): string {
+    const params = new URLSearchParams({ page: String(page) });
+    if (search) params.set('search', search);
+    if (type !== 'all') params.set('type', type);
+
+    return `/admin/media?${params.toString()}`;
+}
+
 export function MediaLibraryManager({
     media,
     hasMorePages,
@@ -168,11 +176,7 @@ export function MediaLibraryManager({
     useEffect(() => {
         setSearching(true);
         const timeout = setTimeout(async () => {
-            const params = new URLSearchParams({ page: '1' });
-            if (search) params.set('search', search);
-            if (type !== 'all') params.set('type', type);
-
-            const response = await fetch(`/admin/media?${params.toString()}`, {
+            const response = await fetch(mediaIndexUrl(1, search, type), {
                 headers: { Accept: 'application/json' },
                 credentials: 'same-origin',
             });
@@ -189,11 +193,7 @@ export function MediaLibraryManager({
 
     async function loadMore() {
         setLoadingMore(true);
-        const params = new URLSearchParams({ page: String(page + 1) });
-        if (search) params.set('search', search);
-        if (type !== 'all') params.set('type', type);
-
-        const response = await fetch(`/admin/media?${params.toString()}`, {
+        const response = await fetch(mediaIndexUrl(page + 1, search, type), {
             headers: { Accept: 'application/json' },
             credentials: 'same-origin',
         });

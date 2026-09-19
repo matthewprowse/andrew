@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { getCsrfToken } from '@/lib/csrf';
 
 // New, separate asset selector for nonprotected editors (MED-01,
 // docs/ADMIN_UX_SEO_BUILD_PLAN.md §Phase 5). Deliberately NOT a change to
@@ -33,11 +34,6 @@ type AssetSummary = {
     mimeType: string;
     kind: 'image' | 'document';
 };
-
-function getCsrfToken(): string {
-    const match = document.cookie.match(/XSRF-TOKEN=([^;]+)/);
-    return match ? decodeURIComponent(match[1]) : '';
-}
 
 export function AssetPicker({
     value,

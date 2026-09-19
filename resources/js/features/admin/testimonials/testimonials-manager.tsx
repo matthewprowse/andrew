@@ -1,5 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import { useState, type ReactNode } from 'react';
+import { ADMIN_PAGE_DESCRIPTION } from '@/lib/admin-copy';
 import { AdminTableToolbar } from '@/components/admin/admin-table-toolbar';
 import {
     columnFilteringFeature,
@@ -64,8 +65,7 @@ const blank: TestimonialForm = {
     status: 'Draft',
 };
 
-const PAGE_DESCRIPTION =
-    'Lorem ipsum dolor sit amet, consectetur adipiscing elit.';
+const PAGE_DESCRIPTION = ADMIN_PAGE_DESCRIPTION;
 
 const testimonialTableFeatures = tableFeatures({
     columnFilteringFeature,

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Service;
 use App\Models\SiteSetting;
 use App\Support\PublicSettings;
 use Database\Seeders\SiteSettingsSeeder;
@@ -40,6 +41,22 @@ class PublicNavigationTest extends TestCase
         $this->get('/')->assertInertia(fn (Assert $page) => $page
             ->where('publicSettings.menu', fn ($menu) => collect($menu)
                 ->doesntContain(fn ($item) => $item['link'] === '/estimator')));
+    }
+
+    public function test_generated_service_menu_children_use_rooted_inertia_urls(): void
+    {
+        Service::query()->create([
+            'name' => 'Mobility',
+            'headline' => 'Move with confidence',
+            'slug' => 'mobility',
+            'intro' => 'Support for your relocation.',
+            'status' => 'published',
+            'sort_order' => 1,
+        ]);
+
+        $this->get('/services')->assertOk()->assertInertia(fn (Assert $page) => $page
+            ->where('publicSettings.menu', fn ($menu) => collect($menu)
+                ->firstWhere('id', 'services')['children'][0]['link'] === '/services/mobility'));
     }
 
     public function test_footer_still_links_to_secondary_pages_folded_out_of_the_header(): void

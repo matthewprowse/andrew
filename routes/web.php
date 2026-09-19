@@ -37,6 +37,7 @@ use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\TestCheckoutController;
 use App\Http\Controllers\TestimonialController;
+use App\Models\ResourceCategory;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [PageController::class, 'home'])->name('home');
@@ -59,11 +60,11 @@ Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
 Route::get('/resources', [ResourceController::class, 'landing'])->name('resources');
 
 Route::get('/resources/{category}', [ResourceController::class, 'show'])
-    ->whereIn('category', ['brochures', 'webinars', 'books'])
+    ->whereIn('category', ResourceCategory::FORMAT_SLUGS)
     ->name('resources.show');
 
 Route::post('/resources/{category}/{item}/request-access', [ResourceAccessController::class, 'requestAccess'])
-    ->whereIn('category', ['brochures', 'webinars', 'books'])
+    ->whereIn('category', ResourceCategory::FORMAT_SLUGS)
     ->middleware('throttle:resource-access')
     ->name('resources.access.request');
 Route::get('/resources/access/{resourceRequest}/verify', [ResourceAccessController::class, 'verifyAccess'])
@@ -74,10 +75,10 @@ Route::get('/resources/access/{resourceRequest}/verify', [ResourceAccessControll
 // emailed after payment (see ResourcePurchaseService).
 Route::middleware('throttle:resource-purchase')->group(function () {
     Route::post('/resources/{category}/{item}/purchase', [ResourcePurchaseController::class, 'store'])
-        ->whereIn('category', ['brochures', 'webinars', 'books'])
+        ->whereIn('category', ResourceCategory::FORMAT_SLUGS)
         ->name('resources.purchase.store');
     Route::post('/resources/{category}/{item}/resend-access', [ResourcePurchaseController::class, 'resend'])
-        ->whereIn('category', ['brochures', 'webinars', 'books'])
+        ->whereIn('category', ResourceCategory::FORMAT_SLUGS)
         ->name('resources.purchase.resend');
 });
 Route::get('/resources/access/order/{order}', [ResourcePurchaseController::class, 'access'])
@@ -267,20 +268,20 @@ Route::middleware(['auth', 'can:enter-admin'])->group(function () {
     });
 
     Route::get('/admin/resources/{category}', [ResourceController::class, 'admin'])
-        ->whereIn('category', ['brochures', 'webinars', 'books'])
+        ->whereIn('category', ResourceCategory::FORMAT_SLUGS)
         ->middleware('admin.permission:resources,view')
         ->name('admin.resources.index');
     Route::middleware('admin.permission:resources,create')->group(function () {
         Route::post('/admin/resources/{category}', [ResourceController::class, 'store'])
-            ->whereIn('category', ['brochures', 'webinars', 'books'])
+            ->whereIn('category', ResourceCategory::FORMAT_SLUGS)
             ->name('admin.resources.store');
     });
     Route::middleware('admin.permission:resources,edit')->group(function () {
         Route::patch('/admin/resources/{category}/layout', [ResourceController::class, 'updateLayout'])
-            ->whereIn('category', ['brochures', 'webinars', 'books'])
+            ->whereIn('category', ResourceCategory::FORMAT_SLUGS)
             ->name('admin.resources.layout');
         Route::patch('/admin/resources/{category}/{item}', [ResourceController::class, 'update'])
-            ->whereIn('category', ['brochures', 'webinars', 'books'])
+            ->whereIn('category', ResourceCategory::FORMAT_SLUGS)
             ->name('admin.resources.update');
     });
 

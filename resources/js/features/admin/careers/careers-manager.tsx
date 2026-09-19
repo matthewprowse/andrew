@@ -1,6 +1,5 @@
 import { router } from '@inertiajs/react';
 import { useImperativeHandle, useState } from 'react';
-import { ArrowDown, ArrowUp } from 'lucide-react';
 import {
     AdminDialogContent,
     AdminDialogFooter,
@@ -21,7 +20,10 @@ import {
     useTable,
 } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
+import { AdminDetail as Detail } from '@/components/admin/admin-detail';
+import { AdminField as Field } from '@/components/admin/admin-field';
 import { DataTable } from '@/components/ui/data-table';
+import { AdminSortMenu } from '@/components/admin/admin-table-toolbar';
 import { Dialog, DialogClose } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -199,38 +201,12 @@ export function CareersManager({
                         }
                         className="max-w-sm"
                     />
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <Button variant="ghost">Sort</Button>
-                        </PopoverTrigger>
-                        <PopoverContent
-                            align="start"
-                            sideOffset={8}
-                            className="w-56"
-                        >
-                            {sortableColumns.map((column) => {
-                                const sorted = column.getIsSorted();
-
-                                return (
-                                    <button
-                                        key={column.id}
-                                        onClick={column.getToggleSortingHandler()}
-                                        className="hover:bg-accent hover:text-accent-foreground relative flex w-full items-center gap-1.5 rounded-md py-1 pr-8 pl-1.5 text-left text-sm select-none"
-                                    >
-                                        {columnLabels[column.id] ?? column.id}
-                                        <span className="pointer-events-none absolute right-2 flex size-4 items-center justify-center">
-                                            {sorted === 'asc' && (
-                                                <ArrowUp className="size-3.5" />
-                                            )}
-                                            {sorted === 'desc' && (
-                                                <ArrowDown className="size-3.5" />
-                                            )}
-                                        </span>
-                                    </button>
-                                );
-                            })}
-                        </PopoverContent>
-                    </Popover>
+                    <AdminSortMenu
+                        columns={sortableColumns}
+                        labels={columnLabels}
+                        align="start"
+                        variant="ghost"
+                    />
                 </header>
             )}
 
@@ -407,31 +383,5 @@ export function CareersManager({
                 </AdminDialogContent>
             </Dialog>
         </>
-    );
-}
-
-function Detail({ label, value }: { label: string; value: string }) {
-    return (
-        <div className="grid gap-1">
-            <span className="text-muted-foreground">{label}</span>
-            <span className="whitespace-pre-wrap">{value || '—'}</span>
-        </div>
-    );
-}
-
-function Field({
-    label,
-    htmlFor,
-    children,
-}: {
-    label: string;
-    htmlFor: string;
-    children: React.ReactNode;
-}) {
-    return (
-        <div className="grid gap-2">
-            <Label htmlFor={htmlFor}>{label}</Label>
-            {children}
-        </div>
     );
 }

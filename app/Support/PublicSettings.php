@@ -115,7 +115,7 @@ class PublicSettings
                 continue;
             }
             $children = $item['childrenSource'] === 'services'
-                ? $services->map(static fn (Service $service): array => ['id' => 'service-'.$service->id, 'label' => $service->name, 'link' => $service->slug])->values()->all()
+                ? $services->map(static fn (Service $service): array => ['id' => 'service-'.$service->id, 'label' => $service->name, 'link' => '/services/'.$service->slug])->values()->all()
                 : array_values(array_map(static fn (array $child): array => ['id' => $child['id'], 'label' => $child['label'], 'link' => $child['link']], array_filter($menu, static fn (array $child): bool => $child['parentId'] === $item['id'])));
             $resolved[] = [...$item, 'children' => $children];
         }

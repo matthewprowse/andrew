@@ -1,6 +1,5 @@
 import { router } from '@inertiajs/react';
 import { useImperativeHandle, useState } from 'react';
-import { ArrowDown, ArrowUp } from 'lucide-react';
 import {
     columnFilteringFeature,
     createColumnHelper,
@@ -22,6 +21,7 @@ import {
 } from '@/components/admin/admin-dialog';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
+import { AdminSortMenu } from '@/components/admin/admin-table-toolbar';
 import { Dialog, DialogClose } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -175,38 +175,12 @@ export function TeamManager({
                         }
                         className="max-w-sm"
                     />
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <Button variant="ghost">Sort</Button>
-                        </PopoverTrigger>
-                        <PopoverContent
-                            align="start"
-                            sideOffset={8}
-                            className="w-56"
-                        >
-                            {sortableColumns.map((column) => {
-                                const sorted = column.getIsSorted();
-
-                                return (
-                                    <button
-                                        key={column.id}
-                                        onClick={column.getToggleSortingHandler()}
-                                        className="hover:bg-accent hover:text-accent-foreground relative flex w-full items-center gap-1.5 rounded-md py-1 pr-8 pl-1.5 text-left text-sm select-none"
-                                    >
-                                        {columnLabels[column.id] ?? column.id}
-                                        <span className="pointer-events-none absolute right-2 flex size-4 items-center justify-center">
-                                            {sorted === 'asc' && (
-                                                <ArrowUp className="size-3.5" />
-                                            )}
-                                            {sorted === 'desc' && (
-                                                <ArrowDown className="size-3.5" />
-                                            )}
-                                        </span>
-                                    </button>
-                                );
-                            })}
-                        </PopoverContent>
-                    </Popover>
+                    <AdminSortMenu
+                        columns={sortableColumns}
+                        labels={columnLabels}
+                        align="start"
+                        variant="ghost"
+                    />
                 </header>
             )}
 

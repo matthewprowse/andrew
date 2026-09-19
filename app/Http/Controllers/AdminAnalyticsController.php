@@ -46,12 +46,7 @@ class AdminAnalyticsController extends Controller
             'startDate' => $since->toDateString(),
             'endDate' => $until->toDateString(),
             'search' => $search,
-            'summary' => [
-                'pageViews' => (clone $events)->where('event_type', 'page_view')->count(),
-                'ctaClicks' => (clone $events)->where('event_type', 'cta_click')->count(),
-                'resourceDownloads' => (clone $events)->where('event_type', 'resource_download')->count(),
-                'uniqueSessions' => (clone $events)->where('event_type', 'page_view')->whereNotNull('session_hash')->distinct()->count('session_hash'),
-            ],
+            'summary' => $this->summaryMetrics($events),
             'dailyVisits' => $dailyVisits,
             'topPages' => $this->ranked($events, 'page_view', 'path', 'views', true),
             'topResources' => (clone $events)->where('event_type', 'resource_download')->join('resource_items', 'resource_items.id', '=', 'analytics_events.resource_item_id')->selectRaw('resource_items.title as title, COUNT(*) as downloads')->groupBy('resource_items.id', 'resource_items.title')->orderByDesc('downloads')->orderBy('resource_items.title')->limit(10)->get(),
@@ -75,9 +70,10 @@ class AdminAnalyticsController extends Controller
             if ($out === false) {
                 return;
             }
+            $summary = $this->summaryMetrics($events);
             fputcsv($out, ['Metric', 'Value']);
-            foreach (['Page views' => (clone $events)->where('event_type', 'page_view')->count(), 'Unique sessions' => (clone $events)->where('event_type', 'page_view')->whereNotNull('session_hash')->distinct()->count('session_hash'), 'CTA clicks' => (clone $events)->where('event_type', 'cta_click')->count(), 'Resource downloads' => (clone $events)->where('event_type', 'resource_download')->count()] as $metric => $value) {
-                fputcsv($out, [$metric, $value]);
+            foreach (['Page views' => 'pageViews', 'Unique sessions' => 'uniqueSessions', 'CTA clicks' => 'ctaClicks', 'Resource downloads' => 'resourceDownloads'] as $metric => $key) {
+                fputcsv($out, [$metric, $summary[$key]]);
             }
             fputcsv($out, []);
             fputcsv($out, ['Page', 'Views']);
@@ -129,6 +125,17 @@ class AdminAnalyticsController extends Controller
         }
 
         return $query;
+    }
+
+    /** @param Builder<AnalyticsEvent> $events */
+    private function summaryMetrics(Builder $events): array
+    {
+        return [
+            'pageViews' => (clone $events)->where('event_type', 'page_view')->count(),
+            'ctaClicks' => (clone $events)->where('event_type', 'cta_click')->count(),
+            'resourceDownloads' => (clone $events)->where('event_type', 'resource_download')->count(),
+            'uniqueSessions' => (clone $events)->where('event_type', 'page_view')->whereNotNull('session_hash')->distinct()->count('session_hash'),
+        ];
     }
 
     /**

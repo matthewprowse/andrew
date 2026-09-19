@@ -1,5 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import { useState } from 'react';
+import { ADMIN_PAGE_DESCRIPTION } from '@/lib/admin-copy';
 import { ArrowDown, ArrowUp } from 'lucide-react';
 import {
     columnFilteringFeature,
@@ -22,6 +23,7 @@ import {
 import AdminWorkspaceLayout from '@/layouts/admin-workspace-layout';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { AdminDetail as Detail } from '@/components/admin/admin-detail';
 import { DataTable } from '@/components/ui/data-table';
 import { Dialog, DialogClose } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -61,8 +63,7 @@ const blank: FaqForm = {
     reviewDate: '',
 };
 
-const PAGE_DESCRIPTION =
-    'Lorem ipsum dolor sit amet, consectetur adipiscing elit.';
+const PAGE_DESCRIPTION = ADMIN_PAGE_DESCRIPTION;
 
 const faqTableFeatures = tableFeatures({
     columnFilteringFeature,
@@ -373,13 +374,4 @@ export function FaqManager({
 
 function Error({ value }: { value?: string }) {
     return value ? <p className="text-destructive text-sm">{value}</p> : null;
-}
-
-function Detail({ label, value }: { label: string; value: string }) {
-    return (
-        <div className="grid gap-1">
-            <span className="text-muted-foreground">{label}</span>
-            <span className="whitespace-pre-wrap">{value || '—'}</span>
-        </div>
-    );
 }

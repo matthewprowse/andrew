@@ -1,5 +1,7 @@
 import { useForm, usePage } from '@inertiajs/react';
 import { useState } from 'react';
+import { getCsrfToken } from '@/lib/csrf';
+import { formatDateTime } from '@/lib/format-date-time';
 import { AssetPicker } from '@/components/admin/asset-picker';
 import { ConfirmationDialog } from '@/components/admin/confirmation-dialog';
 import InputError from '@/components/input-error';
@@ -83,19 +85,6 @@ const FIELD_VISIBILITY: Record<
 // 409 conflict body especially) that Inertia's own form.put()/router
 // helpers aren't built to surface — so these three actions use a plain
 // fetch() instead, same pattern as asset-picker.tsx and estimator.tsx.
-function getCsrfToken(): string {
-    const match = document.cookie.match(/XSRF-TOKEN=([^;]+)/);
-    return match ? decodeURIComponent(match[1]) : '';
-}
-
-function formatDateTime(iso: string): string {
-    if (!iso) return '';
-    return new Date(iso).toLocaleString(undefined, {
-        dateStyle: 'medium',
-        timeStyle: 'short',
-    });
-}
-
 function truncate(value: string, max = 80): string {
     return value.length > max ? `${value.slice(0, max)}…` : value;
 }

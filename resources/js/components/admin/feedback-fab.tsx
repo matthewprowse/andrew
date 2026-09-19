@@ -2,6 +2,7 @@ import { Link, usePage } from '@inertiajs/react';
 import { X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { getCsrfToken } from '@/lib/csrf';
 import {
     Popover,
     PopoverContent,
@@ -23,11 +24,6 @@ const FEEDBACK_TYPES = [
 ] as const;
 
 const MAX_PHOTOS = 5;
-
-function getCsrfToken(): string {
-    const match = document.cookie.match(/XSRF-TOKEN=([^;]+)/);
-    return match ? decodeURIComponent(match[1]) : '';
-}
 
 /**
  * Global feedback FAB for the admin tool itself (not site content) — lives

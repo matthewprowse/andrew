@@ -33,6 +33,7 @@ import type {
     TextBlockData,
     TextWithListBlockData,
 } from '@/types/blocks';
+import { initials } from '@/lib/initials';
 
 // Lifted verbatim from the original resources/js/pages/home.tsx so every
 // block reproduces that page's exact look, not a new generic style.
@@ -528,15 +529,6 @@ function ImageTextBlock({ data }: { data: ImageTextBlockData }) {
             </div>
         </section>
     );
-}
-
-function initials(name: string) {
-    return name
-        .split(' ')
-        .filter(Boolean)
-        .slice(0, 2)
-        .map((part) => part[0]?.toUpperCase())
-        .join('');
 }
 
 // Matches About's original "Meet Our Team" section.

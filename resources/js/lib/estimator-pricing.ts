@@ -267,6 +267,6 @@ export function buildEstimate(input: PlannerInput): Estimate {
     };
 }
 
-export function formatMoney(amount: number): string {
-    return `$${Math.round(amount).toLocaleString('en-US')}`;
+export function formatMoney(amount: number, currency = 'USD'): string {
+    return `${currency === 'USD' ? '$' : currency + ' '}${Math.round(amount).toLocaleString('en-US')}`;
 }

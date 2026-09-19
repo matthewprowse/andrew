@@ -1,5 +1,6 @@
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
+import { ADMIN_PAGE_DESCRIPTION } from '@/lib/admin-copy';
 import { ArrowDown, ArrowUp } from 'lucide-react';
 import {
     columnFilteringFeature,
@@ -31,9 +32,10 @@ import {
     PopoverTrigger,
 } from '@/components/ui/popover';
 import AdminWorkspaceLayout from '@/layouts/admin-workspace-layout';
+import { formatAdminDateTime } from '@/lib/format-admin-date';
+import { useAdminMutation } from '@/hooks/use-admin-mutation';
 
-const PAGE_DESCRIPTION =
-    'Lorem ipsum dolor sit amet, consectetur adipiscing elit.';
+const PAGE_DESCRIPTION = ADMIN_PAGE_DESCRIPTION;
 
 export type Lead = {
     id: string;
@@ -63,19 +65,6 @@ const leadFeatures = tableFeatures({
     sortFns: { alphanumeric: sortFn_alphanumeric },
     filterFns: { includesString: filterFn_includesString },
 });
-
-function formatDate(value: string) {
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return '—';
-
-    return new Intl.DateTimeFormat('en-ZA', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-    }).format(date);
-}
 
 function LeadStatus({ handled }: { handled: boolean }) {
     return (
@@ -110,7 +99,7 @@ const leadColumns = leadColumnHelper.columns([
     }),
     leadColumnHelper.accessor('date', {
         header: 'Date',
-        cell: (info) => formatDate(info.getValue()),
+        cell: (info) => formatAdminDateTime(info.getValue()),
     }),
     leadColumnHelper.accessor('handled', {
         header: 'Status',
@@ -124,8 +113,8 @@ export type InquiriesProps = {
 
 export function InquiriesManager({ leads }: InquiriesProps) {
     const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
-    const [processing, setProcessing] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const { processing, run: runMutation } = useAdminMutation();
 
     const leadsTable = useTable({
         features: leadFeatures,
@@ -142,18 +131,19 @@ export function InquiriesManager({ leads }: InquiriesProps) {
     function markHandled() {
         if (!selectedLead) return;
 
-        setProcessing(true);
         setError(null);
-        router.patch(
-            `/admin/inquiries/${selectedLead.id}`,
-            { handled: true },
+        runMutation(
+            (options) =>
+                router.patch(
+                    `/admin/inquiries/${selectedLead.id}`,
+                    { handled: true },
+                    options,
+                ),
             {
-                preserveScroll: true,
                 onError: () =>
                     setError(
                         'Could not update this inquiry. Please try again.',
                     ),
-                onFinish: () => setProcessing(false),
             },
         );
     }
@@ -248,7 +238,9 @@ export function InquiriesManager({ leads }: InquiriesProps) {
                                     {selectedLead.email}
                                 </dd>
                                 <dt className="text-muted-foreground">Date</dt>
-                                <dd>{formatDate(selectedLead.date)}</dd>
+                                <dd>
+                                    {formatAdminDateTime(selectedLead.date)}
+                                </dd>
                                 <dt className="text-muted-foreground">
                                     Status
                                 </dt>

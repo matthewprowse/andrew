@@ -48,7 +48,7 @@ export default function ManageTwoFactor(props: Props) {
         <div className="space-y-6">
             <Heading
                 variant="small"
-                title="Two-factor authentication"
+                title="Two-Factor Authentication"
                 description="Manage your two-factor authentication settings"
             />
             {twoFactorEnabled ? (

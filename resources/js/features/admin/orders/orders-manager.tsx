@@ -1,5 +1,6 @@
 import { router, usePage } from '@inertiajs/react';
 import { useEffect, useMemo, useState } from 'react';
+import { ADMIN_PAGE_DESCRIPTION } from '@/lib/admin-copy';
 import {
     columnFilteringFeature,
     createColumnHelper,
@@ -34,9 +35,10 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import AdminWorkspaceLayout from '@/layouts/admin-workspace-layout';
+import { formatAdminDateTime as formatDate } from '@/lib/format-admin-date';
+import { useAdminMutation } from '@/hooks/use-admin-mutation';
 
-const PAGE_DESCRIPTION =
-    'Lorem ipsum dolor sit amet, consectetur adipiscing elit.';
+const PAGE_DESCRIPTION = ADMIN_PAGE_DESCRIPTION;
 
 export type OrderStatus =
     | 'pending'
@@ -323,20 +325,6 @@ const columns = helper.columns([
     }),
 ]);
 
-function formatDate(value: string | null) {
-    if (!value) return '—';
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return '—';
-
-    return new Intl.DateTimeFormat('en-ZA', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-    }).format(date);
-}
-
 function OrderStatusBadge({ status }: { status: OrderStatus }) {
     const variant =
         status === 'paid'
@@ -364,8 +352,8 @@ export function OrdersManager({ orders, resourceRequests }: OrdersProps) {
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [confirming, setConfirming] = useState<Confirming>(null);
     const [reason, setReason] = useState('');
-    const [processing, setProcessing] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const { processing, run: runMutation } = useAdminMutation();
     const allOrders = useMemo<OrderRow[]>(
         () => [
             ...demoOrders.map(toOrderRow),
@@ -417,10 +405,8 @@ export function OrdersManager({ orders, resourceRequests }: OrdersProps) {
         data: Record<string, string>,
         onSuccess?: () => void,
     ) {
-        setProcessing(true);
         setError(null);
-        router[method](url, data, {
-            preserveScroll: true,
+        runMutation((options) => router[method](url, data, options), {
             onSuccess: () => {
                 setConfirming(null);
                 setReason('');
@@ -432,7 +418,6 @@ export function OrdersManager({ orders, resourceRequests }: OrdersProps) {
                         errors.reason ??
                         'Something went wrong. Please try again.',
                 ),
-            onFinish: () => setProcessing(false),
         });
     }
 

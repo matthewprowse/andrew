@@ -1,17 +1,13 @@
 import { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { getCsrfToken } from '@/lib/csrf';
 
 export type MediaPickerValue = {
     id: string;
     url: string;
     fileName: string;
 } | null;
-
-function getCsrfToken(): string {
-    const match = document.cookie.match(/XSRF-TOKEN=([^;]+)/);
-    return match ? decodeURIComponent(match[1]) : '';
-}
 
 export function MediaPicker({
     value,
