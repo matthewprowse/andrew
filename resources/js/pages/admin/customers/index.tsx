@@ -35,6 +35,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import AdminWorkspaceLayout from '@/layouts/admin-workspace-layout';
 import { AdminTableToolbar } from '@/components/admin/admin-table-toolbar';
+import { formatAdminLocaleDate } from '@/lib/format-admin-date';
 
 type Activity = { type: string; label: string; date: string | null };
 type RelatedRecord = {
@@ -94,21 +95,9 @@ const columns = columnHelper.columns([
     columnHelper.accessor('orders', { header: 'Orders' }),
     columnHelper.accessor('lastActivity', {
         header: 'Last activity',
-        cell: (info) => formatDate(info.getValue()),
+        cell: (info) => formatAdminLocaleDate(info.getValue()),
     }),
 ]);
-
-function formatDate(iso: string | null) {
-    if (!iso) return '—';
-    const date = new Date(iso);
-    return Number.isNaN(date.getTime())
-        ? '—'
-        : date.toLocaleDateString('en-ZA', {
-              day: '2-digit',
-              month: 'short',
-              year: 'numeric',
-          });
-}
 
 export default function CustomersIndex({
     customers,
@@ -309,7 +298,9 @@ export default function CustomersIndex({
                                         Last activity
                                     </p>
                                     <p className="text-sm">
-                                        {formatDate(selected.lastActivity)}
+                                        {formatAdminLocaleDate(
+                                            selected.lastActivity,
+                                        )}
                                     </p>
                                 </div>
                             </div>
@@ -380,7 +371,7 @@ function CustomerRecords({
                                     </div>
                                     <div className="text-muted-foreground truncate">
                                         {record.detail ||
-                                            formatDate(record.date)}
+                                            formatAdminLocaleDate(record.date)}
                                     </div>
                                 </div>
                                 <div className="flex shrink-0 items-center gap-2">

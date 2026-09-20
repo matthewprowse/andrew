@@ -1,6 +1,6 @@
 import { useForm, usePage } from '@inertiajs/react';
 import { useState } from 'react';
-import { getCsrfToken } from '@/lib/csrf';
+import { csrfFetch } from '@/lib/csrf';
 import { formatDateTime } from '@/lib/format-date-time';
 import { AssetPicker } from '@/components/admin/asset-picker';
 import { ConfirmationDialog } from '@/components/admin/confirmation-dialog';
@@ -243,20 +243,14 @@ export function PageContentManager({
         form.clearErrors();
         setSaving(true);
         try {
-            const response = await fetch(`/admin/pages/${slug}`, {
+            const response = await csrfFetch(`/admin/pages/${slug}`, {
                 method: 'PUT',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                    'X-XSRF-TOKEN': getCsrfToken(),
-                },
-                credentials: 'same-origin',
-                body: JSON.stringify({
+                json: {
                     ...form.data,
                     intro_image_media_id: introImage?.id ?? '',
                     og_image_media_id: ogImage?.id ?? '',
                     base_revision_id: baseRevisionId,
-                }),
+                },
             });
             const json = await response.json();
 
@@ -303,13 +297,8 @@ export function PageContentManager({
         setConflict(null);
         setPublishing(true);
         try {
-            const response = await fetch(`/admin/pages/${slug}/publish`, {
+            const response = await csrfFetch(`/admin/pages/${slug}/publish`, {
                 method: 'PUT',
-                headers: {
-                    Accept: 'application/json',
-                    'X-XSRF-TOKEN': getCsrfToken(),
-                },
-                credentials: 'same-origin',
             });
             const json = await response.json();
 
@@ -335,16 +324,9 @@ export function PageContentManager({
         setConflict(null);
         setRestoringId(revisionId);
         try {
-            const response = await fetch(
+            const response = await csrfFetch(
                 `/admin/pages/${slug}/revisions/${revisionId}/restore`,
-                {
-                    method: 'PUT',
-                    headers: {
-                        Accept: 'application/json',
-                        'X-XSRF-TOKEN': getCsrfToken(),
-                    },
-                    credentials: 'same-origin',
-                },
+                { method: 'PUT' },
             );
             if (!response.ok) {
                 setMessage('Could not restore this revision.');

@@ -30,6 +30,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AdminWorkspaceLayout from '@/layouts/admin-workspace-layout';
 import { ADMIN_PAGE_DESCRIPTION } from '@/lib/admin-copy';
+import { formatAdminLocaleDate } from '@/lib/format-admin-date';
 import type { BlockCatalogueEntry } from '@/types/blocks';
 
 const PAGE_DESCRIPTION = ADMIN_PAGE_DESCRIPTION;
@@ -80,20 +81,9 @@ const pageColumns = pageColumnHelper.columns([
     }),
     pageColumnHelper.accessor('updatedAt', {
         header: 'Date',
-        cell: (info) => formatDate(info.getValue()),
+        cell: (info) => formatAdminLocaleDate(info.getValue()),
     }),
 ]);
-
-function formatDate(iso: string) {
-    if (!iso) return '—';
-    const date = new Date(iso);
-    if (Number.isNaN(date.getTime())) return '—';
-    return date.toLocaleDateString('en-ZA', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-    });
-}
 
 export default function PagesIndex({
     pages,

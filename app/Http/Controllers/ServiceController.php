@@ -110,14 +110,9 @@ class ServiceController extends Controller
 
     public function store(SaveServiceRequest $request): RedirectResponse
     {
-        $data = $request->validated();
-        $data['status'] = (request()->user()?->canAdmin('services', 'publish') ?? false)
-            && in_array($data['status'], ['Live', 'published'], true) ? 'published' : 'draft';
+        $data = $this->payload($request);
         if ($data['status'] === 'published') {
             $data['published_at'] = now();
-        }
-        if (array_key_exists('rich_content', $data)) {
-            $data['rich_content'] = RichContentSanitizer::sanitize($data['rich_content']);
         }
 
         Service::create($data);
@@ -127,18 +122,31 @@ class ServiceController extends Controller
 
     public function update(SaveServiceRequest $request, Service $service): RedirectResponse
     {
-        $data = $request->validated();
-        $data['status'] = (request()->user()?->canAdmin('services', 'publish') ?? false)
-            && in_array($data['status'], ['Live', 'published'], true) ? 'published' : 'draft';
+        $data = $this->payload($request);
         if ($data['status'] === 'published' && ! $service->published_at) {
             $data['published_at'] = now();
-        }
-        if (array_key_exists('rich_content', $data)) {
-            $data['rich_content'] = RichContentSanitizer::sanitize($data['rich_content']);
         }
 
         $service->update($data);
 
         return to_route('admin.services');
+    }
+
+    /**
+     * Validated fields with the status gated by the publish permission and
+     * rich content sanitised. Callers decide when `published_at` is set.
+     *
+     * @return array<string, mixed>
+     */
+    private function payload(SaveServiceRequest $request): array
+    {
+        $data = $request->validated();
+        $data['status'] = (request()->user()?->canAdmin('services', 'publish') ?? false)
+            && in_array($data['status'], ['Live', 'published'], true) ? 'published' : 'draft';
+        if (array_key_exists('rich_content', $data)) {
+            $data['rich_content'] = RichContentSanitizer::sanitize($data['rich_content']);
+        }
+
+        return $data;
     }
 }

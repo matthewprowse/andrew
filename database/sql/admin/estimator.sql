@@ -8,8 +8,8 @@
 -- them. Catalogue Control and the Overview screen are read-only aggregates of
 -- these tables and do not need tables of their own.
 --
--- All rate figures currently on screen are generated placeholders (see the
--- warning header in resources/js/lib/estimator-rates.ts) — this schema
+-- All rate figures currently on screen are generated placeholders (see
+-- EstimatorRateSeeder) — this schema
 -- defines where real rates get captured, it does not claim the current
 -- figures are real quotes.
 
@@ -143,7 +143,7 @@ CREATE TABLE IF NOT EXISTS `estimator_settings` (
 --   * Route-priced services (Flights, Household Goods Shipping, Transit Insurance, Pet Relocation)
 --     are captured in estimator_route_rates only; the equivalent rows the current UI also shows for
 --     them under Destination Costs are unused duplicates in the reference implementation and should
---     not be persisted twice — see the ROUTE_PRICED comment in estimator-pricing.ts.
+--     not be persisted twice — see ROUTE_PRICED in App\Services\EstimatorCalculator.
 --   * A NULL rate is a valid, meaningful state ("no rate captured yet"), not an error — the public
 --     planner already renders this as "Price required" and excludes it from the total.
 --   * Party-size and other move-shape adjustments (bedrooms, weeks, container size, pet count) are

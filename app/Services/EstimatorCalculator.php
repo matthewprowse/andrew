@@ -9,10 +9,9 @@ use App\Models\EstimatorService;
 use App\Models\EstimatorSettings;
 
 /**
- * Faithful PHP port of resources/js/lib/estimator-pricing.ts's buildEstimate, reading rates from
- * the database instead of the placeholder generator, and reading VAT/contingency/insurance-share
- * from EstimatorSettings instead of hardcoded constants. Keep this in lockstep with the TS file if
- * either ever changes — they must produce identical figures for identical rates.
+ * Server-side estimate calculation, reading rates from the database and
+ * VAT/contingency/insurance-share from EstimatorSettings. Ported from the original client-side
+ * prototype (since removed), which generated placeholder rates and hardcoded those constants.
  */
 class EstimatorCalculator
 {

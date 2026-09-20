@@ -93,11 +93,7 @@ class PageController extends Controller
     public function store(CreatePageRequest $request): RedirectResponse
     {
         $data = $request->validated();
-        $page = Page::create([
-            'slug' => $data['slug'], 'title' => $data['title'],
-            'kind' => Page::KIND_BLOCK, 'is_system' => false, 'blocks' => [],
-        ]);
-        AuditLog::record('created', 'page', $page->id, ['slug' => $page->slug]);
+        $page = $this->createBlockPage($data['slug'], $data['title']);
 
         return to_route('admin.pages.show', $page->slug);
     }
@@ -112,10 +108,20 @@ class PageController extends Controller
         abort_unless(request()->user()?->canAdmin('pages', 'create'), 403);
 
         [$title, $slug] = ReservedSlugs::nextUntitled();
-        $page = Page::create(['slug' => $slug, 'title' => $title, 'kind' => Page::KIND_BLOCK, 'is_system' => false, 'blocks' => []]);
-        AuditLog::record('created', 'page', $page->id, ['slug' => $page->slug]);
+        $page = $this->createBlockPage($slug, $title);
 
         return to_route('admin.pages.show', $page->slug);
+    }
+
+    private function createBlockPage(string $slug, string $title): Page
+    {
+        $page = Page::create([
+            'slug' => $slug, 'title' => $title,
+            'kind' => Page::KIND_BLOCK, 'is_system' => false, 'blocks' => [],
+        ]);
+        AuditLog::record('created', 'page', $page->id, ['slug' => $page->slug]);
+
+        return $page;
     }
 
     /**

@@ -9,7 +9,12 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { getCsrfToken } from '@/lib/csrf';
+import {
+    mediaAcceptAttribute,
+    uploadMedia,
+    type MediaAccept,
+    type MediaValue,
+} from '@/lib/media-upload';
 
 // New, separate asset selector for nonprotected editors (MED-01,
 // docs/ADMIN_UX_SEO_BUILD_PLAN.md §Phase 5). Deliberately NOT a change to
@@ -20,11 +25,7 @@ import { getCsrfToken } from '@/lib/csrf';
 // server-side search/pagination/type filtering, on top of the same upload
 // flow.
 
-export type AssetPickerValue = {
-    id: string;
-    url: string;
-    fileName: string;
-} | null;
+export type AssetPickerValue = MediaValue;
 
 type AssetSummary = {
     id: string;
@@ -43,7 +44,7 @@ export function AssetPicker({
 }: {
     value: AssetPickerValue;
     onChange: (value: AssetPickerValue) => void;
-    accept?: 'image' | 'document';
+    accept?: MediaAccept;
     label: string;
 }) {
     const inputRef = useRef<HTMLInputElement>(null);
@@ -54,37 +55,16 @@ export function AssetPicker({
     async function handleFile(file: File) {
         setUploading(true);
         setError('');
-        const formData = new FormData();
-        formData.append('file', file);
 
         try {
-            const response = await fetch('/admin/media', {
-                method: 'POST',
-                headers: {
-                    Accept: 'application/json',
-                    'X-XSRF-TOKEN': getCsrfToken(),
-                },
-                credentials: 'same-origin',
-                body: formData,
-            });
+            const result = await uploadMedia(file);
 
-            if (!response.ok) {
-                const json = await response.json().catch(() => null);
-                setError(json?.errors?.file?.[0] ?? 'Upload failed.');
+            if (!result.ok) {
+                setError(result.error);
                 return;
             }
 
-            const json = await response.json();
-            const media = json.data as {
-                id: string;
-                url: string;
-                fileName: string;
-            };
-            onChange({
-                id: media.id,
-                url: media.url,
-                fileName: media.fileName,
-            });
+            onChange(result.media);
         } finally {
             setUploading(false);
         }
@@ -97,13 +77,7 @@ export function AssetPicker({
                 ref={inputRef}
                 type="file"
                 className="hidden"
-                accept={
-                    accept === 'image'
-                        ? 'image/png,image/jpeg,image/webp'
-                        : accept === 'document'
-                          ? 'application/pdf'
-                          : undefined
-                }
+                accept={mediaAcceptAttribute(accept)}
                 onChange={(event) => {
                     const file = event.target.files?.[0];
                     event.target.value = '';

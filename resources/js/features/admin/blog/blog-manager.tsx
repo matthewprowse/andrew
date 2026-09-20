@@ -1,6 +1,7 @@
 import { router, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import { ADMIN_PAGE_DESCRIPTION } from '@/lib/admin-copy';
+import { formatAdminDate } from '@/lib/format-admin-date';
 import { Newspaper } from 'lucide-react';
 import {
     columnFilteringFeature,
@@ -80,20 +81,6 @@ export type BlogPost = {
 };
 
 type ServiceOption = { id: string; name: string };
-const months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-];
 
 const emptyDraft = {
     excerpt: '',
@@ -115,12 +102,6 @@ const columnLabels: Record<string, string> = {
     authorName: 'Author',
     publishDate: 'Date',
 };
-
-function formatDate(date: string) {
-    if (!date) return '—';
-    const [year, month, day] = date.split('-').map(Number);
-    return `${String(day).padStart(2, '0')} ${months[month - 1]} ${year}`;
-}
 
 function slugify(value: string) {
     return value
@@ -180,7 +161,7 @@ const columns = helper.columns([
     }),
     helper.accessor('publishDate', {
         header: 'Date',
-        cell: (info) => formatDate(info.getValue()),
+        cell: (info) => formatAdminDate(info.getValue()),
     }),
 ]);
 
@@ -389,7 +370,7 @@ export function BlogManager({
                                             </span>
                                         </div>
                                         <span className="text-muted-foreground text-xs">
-                                            {formatDate(post.publishDate)}
+                                            {formatAdminDate(post.publishDate)}
                                         </span>
                                     </div>
                                 </CardContent>
@@ -416,7 +397,9 @@ export function BlogManager({
                                     <StatusBadge post={selectedPost} />
                                 </dd>
                                 <dt className="text-muted-foreground">Date</dt>
-                                <dd>{formatDate(selectedPost.publishDate)}</dd>
+                                <dd>
+                                    {formatAdminDate(selectedPost.publishDate)}
+                                </dd>
                             </dl>
                             <Detail
                                 label="URL Slug"

@@ -22,6 +22,19 @@ export function formatAdminDate(date: string) {
     return `${String(day).padStart(2, '0')} ${months[month - 1]} ${year}`;
 }
 
+/** Formats an ISO timestamp as a locale-rendered date (en-ZA), without the time. */
+export function formatAdminLocaleDate(value: string | null) {
+    if (!value) return '—';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '—';
+
+    return date.toLocaleDateString('en-ZA', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+    });
+}
+
 export function formatAdminDateTime(value: string | null) {
     if (!value) return '—';
     const date = new Date(value);

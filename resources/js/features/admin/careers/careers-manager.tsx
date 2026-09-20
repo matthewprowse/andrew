@@ -7,6 +7,7 @@ import {
 } from '@/components/admin/admin-dialog';
 import { DatePicker } from '@/components/admin/date-picker';
 import { useAdminMutation } from '@/hooks/use-admin-mutation';
+import { formatAdminDate } from '@/lib/format-admin-date';
 import {
     columnFilteringFeature,
     createColumnHelper,
@@ -65,26 +66,6 @@ const columnLabels: Record<string, string> = {
     postedDate: 'Posted Date',
 };
 
-const months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-];
-
-function formatDate(date: string) {
-    const [year, month, day] = date.split('-').map(Number);
-    return `${String(day).padStart(2, '0')} ${months[month - 1]} ${year}`;
-}
-
 function todayIso() {
     return new Date().toISOString().slice(0, 10);
 }
@@ -106,7 +87,7 @@ const columns = helper.columns([
     helper.accessor('status', { header: 'Status' }),
     helper.accessor('postedDate', {
         header: 'Posted Date',
-        cell: (info) => formatDate(info.getValue()),
+        cell: (info) => formatAdminDate(info.getValue()),
     }),
 ]);
 
@@ -236,7 +217,9 @@ export function CareersManager({
                                 <dt className="text-muted-foreground">
                                     Posted Date
                                 </dt>
-                                <dd>{formatDate(selectedCareer.postedDate)}</dd>
+                                <dd>
+                                    {formatAdminDate(selectedCareer.postedDate)}
+                                </dd>
                             </dl>
                             <Detail
                                 label="Description"

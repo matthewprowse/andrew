@@ -8,8 +8,10 @@ use App\Models\EstimatorRelocationServiceRate;
 use App\Models\EstimatorRouteRate;
 use App\Models\EstimatorService;
 use App\Services\EstimatorCalculator;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection as SupportCollection;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -19,38 +21,13 @@ class EstimatorRateController extends Controller
     {
         $services = EstimatorService::active()->whereIn('name', EstimatorCalculator::DESTINATION_RATED_SERVICES)
             ->orderBy('sort_order')->get(['id', 'name']);
-        $cities = $this->activeCities();
 
-        $rates = EstimatorDestinationRate::whereIn('estimator_service_id', $services->pluck('id'))
-            ->whereIn('estimator_city_id', $cities->pluck('id'))->get()
-            ->map(fn (EstimatorDestinationRate $rate) => [
-                'cityId' => (string) $rate->estimator_city_id,
-                'serviceId' => (string) $rate->estimator_service_id,
-                'rate' => $rate->rate_usd,
-            ]);
-
-        return Inertia::render('admin/estimator/destination-costs', [
-            'services' => $services->map(fn (EstimatorService $s) => ['id' => (string) $s->id, 'name' => $s->name]),
-            'cities' => $cities->map(fn (EstimatorCity $c) => ['id' => (string) $c->id, 'city' => $c->city, 'country' => $c->country]),
-            'rates' => $rates,
-        ]);
+        return $this->singleRatePage('admin/estimator/destination-costs', $services, EstimatorDestinationRate::class);
     }
 
     public function updateDestinationCosts(Request $request): RedirectResponse
     {
-        $data = $request->validate([
-            'rates' => ['required', 'array'],
-            'rates.*.cityId' => ['required', 'integer', 'exists:estimator_cities,id'],
-            'rates.*.serviceId' => ['required', 'integer', 'exists:estimator_services,id'],
-            'rates.*.rate' => ['nullable', 'numeric', 'min:0'],
-        ]);
-
-        foreach ($data['rates'] as $row) {
-            EstimatorDestinationRate::updateOrCreate(
-                ['estimator_city_id' => $row['cityId'], 'estimator_service_id' => $row['serviceId']],
-                ['rate_usd' => $row['rate']],
-            );
-        }
+        $this->saveSingleRates($request, EstimatorDestinationRate::class);
 
         return to_route('admin.estimator.destination-costs');
     }
@@ -72,8 +49,8 @@ class EstimatorRateController extends Controller
             ]);
 
         return Inertia::render('admin/estimator/intra-location-costs', [
-            'services' => $services->map(fn (EstimatorService $s) => ['id' => (string) $s->id, 'name' => $s->name]),
-            'cities' => $cities->map(fn (EstimatorCity $c) => ['id' => (string) $c->id, 'city' => $c->city, 'country' => $c->country]),
+            'services' => $this->serviceOptions($services),
+            'cities' => $this->cityOptions($cities),
             'rates' => $rates,
         ]);
     }
@@ -102,24 +79,44 @@ class EstimatorRateController extends Controller
     public function cityServiceRates(): Response
     {
         $services = EstimatorService::active()->where('category', 'services')->orderBy('sort_order')->get(['id', 'name']);
+
+        return $this->singleRatePage('admin/estimator/city-service-rates', $services, EstimatorRelocationServiceRate::class);
+    }
+
+    public function updateCityServiceRates(Request $request): RedirectResponse
+    {
+        $this->saveSingleRates($request, EstimatorRelocationServiceRate::class);
+
+        return to_route('admin.estimator.city-service-rates');
+    }
+
+    /**
+     * Destination costs and city service rates share one shape: a single rate per city and service.
+     *
+     * @param  Collection<int, EstimatorService>  $services
+     * @param  class-string<EstimatorDestinationRate|EstimatorRelocationServiceRate>  $model
+     */
+    private function singleRatePage(string $page, Collection $services, string $model): Response
+    {
         $cities = $this->activeCities();
 
-        $rates = EstimatorRelocationServiceRate::whereIn('estimator_service_id', $services->pluck('id'))
+        $rates = $model::whereIn('estimator_service_id', $services->pluck('id'))
             ->whereIn('estimator_city_id', $cities->pluck('id'))->get()
-            ->map(fn (EstimatorRelocationServiceRate $rate) => [
+            ->map(fn (EstimatorDestinationRate|EstimatorRelocationServiceRate $rate) => [
                 'cityId' => (string) $rate->estimator_city_id,
                 'serviceId' => (string) $rate->estimator_service_id,
                 'rate' => $rate->rate_usd,
             ]);
 
-        return Inertia::render('admin/estimator/city-service-rates', [
-            'services' => $services->map(fn (EstimatorService $s) => ['id' => (string) $s->id, 'name' => $s->name]),
-            'cities' => $cities->map(fn (EstimatorCity $c) => ['id' => (string) $c->id, 'city' => $c->city, 'country' => $c->country]),
+        return Inertia::render($page, [
+            'services' => $this->serviceOptions($services),
+            'cities' => $this->cityOptions($cities),
             'rates' => $rates,
         ]);
     }
 
-    public function updateCityServiceRates(Request $request): RedirectResponse
+    /** @param  class-string<EstimatorDestinationRate|EstimatorRelocationServiceRate>  $model */
+    private function saveSingleRates(Request $request, string $model): void
     {
         $data = $request->validate([
             'rates' => ['required', 'array'],
@@ -129,17 +126,33 @@ class EstimatorRateController extends Controller
         ]);
 
         foreach ($data['rates'] as $row) {
-            EstimatorRelocationServiceRate::updateOrCreate(
+            $model::updateOrCreate(
                 ['estimator_city_id' => $row['cityId'], 'estimator_service_id' => $row['serviceId']],
                 ['rate_usd' => $row['rate']],
             );
         }
-
-        return to_route('admin.estimator.city-service-rates');
     }
 
-    /** @return \Illuminate\Database\Eloquent\Collection<int, EstimatorCity> */
-    private function activeCities(): \Illuminate\Database\Eloquent\Collection
+    /**
+     * @param  Collection<int, EstimatorService>  $services
+     * @return SupportCollection<int, array{id: decimal-int-string, name: string}>
+     */
+    private function serviceOptions(Collection $services): SupportCollection
+    {
+        return $services->map(fn (EstimatorService $s) => ['id' => (string) $s->id, 'name' => $s->name]);
+    }
+
+    /**
+     * @param  Collection<int, EstimatorCity>  $cities
+     * @return SupportCollection<int, array{id: decimal-int-string, city: string, country: string}>
+     */
+    private function cityOptions(Collection $cities): SupportCollection
+    {
+        return $cities->map(fn (EstimatorCity $c) => ['id' => (string) $c->id, 'city' => $c->city, 'country' => $c->country]);
+    }
+
+    /** @return Collection<int, EstimatorCity> */
+    private function activeCities(): Collection
     {
         return EstimatorCity::active()->ordered()->get(['id', 'city', 'country']);
     }

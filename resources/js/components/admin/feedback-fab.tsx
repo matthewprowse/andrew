@@ -2,7 +2,7 @@ import { Link, usePage } from '@inertiajs/react';
 import { X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { getCsrfToken } from '@/lib/csrf';
+import { csrfFetch } from '@/lib/csrf';
 import {
     Popover,
     PopoverContent,
@@ -91,13 +91,8 @@ export function FeedbackFab() {
         photos.forEach((photo) => formData.append('photos[]', photo));
 
         try {
-            const response = await fetch('/admin/feedback', {
+            const response = await csrfFetch('/admin/feedback', {
                 method: 'POST',
-                headers: {
-                    Accept: 'application/json',
-                    'X-XSRF-TOKEN': getCsrfToken(),
-                },
-                credentials: 'same-origin',
                 body: formData,
             });
 

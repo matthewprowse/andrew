@@ -14,6 +14,7 @@ use App\Models\Service;
 use App\Models\Testimonial;
 use App\Models\User;
 use App\Support\ContentLibrary;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -164,11 +165,7 @@ class AdminSearchController extends Controller
     {
         return $this->source($user, 'testimonials', 'Testimonials', 'testimonials', function () use ($query): array {
             return Testimonial::query()
-                ->where(function ($inner) use ($query) {
-                    $inner->where('quote', 'like', "%{$query}%")
-                        ->orWhere('author', 'like', "%{$query}%")
-                        ->orWhere('company', 'like', "%{$query}%");
-                })
+                ->where(fn ($inner) => $this->likeAny($inner, ['quote', 'author', 'company'], $query))
                 ->limit(self::PER_SOURCE_LIMIT)
                 ->get()
                 ->map(fn (Testimonial $testimonial): array => [
@@ -192,10 +189,7 @@ class AdminSearchController extends Controller
     {
         return $this->source($user, 'resources', 'FAQs', 'faqs', function () use ($query): array {
             return Faq::query()
-                ->where(function ($inner) use ($query) {
-                    $inner->where('question', 'like', "%{$query}%")
-                        ->orWhere('answer', 'like', "%{$query}%");
-                })
+                ->where(fn ($inner) => $this->likeAny($inner, ['question', 'answer'], $query))
                 ->limit(self::PER_SOURCE_LIMIT)
                 ->get()
                 ->map(fn (Faq $faq): array => [
@@ -252,11 +246,7 @@ class AdminSearchController extends Controller
             return Lead::query()
                 ->where('type', 'contact')
                 ->whereNull('anonymized_at')
-                ->where(function ($inner) use ($query) {
-                    $inner->where('name', 'like', "%{$query}%")
-                        ->orWhere('email', 'like', "%{$query}%")
-                        ->orWhere('subject', 'like', "%{$query}%");
-                })
+                ->where(fn ($inner) => $this->likeAny($inner, ['name', 'email', 'subject'], $query))
                 ->limit(self::PER_SOURCE_LIMIT)
                 ->get()
                 ->map(fn (Lead $lead): array => [
@@ -299,10 +289,7 @@ class AdminSearchController extends Controller
     {
         return $this->source($user, 'media', 'Media', 'media', function () use ($query): array {
             return Media::query()
-                ->where(function ($inner) use ($query) {
-                    $inner->where('file_name', 'like', "%{$query}%")
-                        ->orWhere('alt_text', 'like', "%{$query}%");
-                })
+                ->where(fn ($inner) => $this->likeAny($inner, ['file_name', 'alt_text'], $query))
                 ->limit(self::PER_SOURCE_LIMIT)
                 ->get()
                 ->map(fn (Media $media): array => [
@@ -327,10 +314,7 @@ class AdminSearchController extends Controller
     {
         return $this->source($user, 'services', 'Services', 'services', function () use ($query): array {
             return Service::query()
-                ->where(function ($inner) use ($query) {
-                    $inner->where('name', 'like', "%{$query}%")
-                        ->orWhere('headline', 'like', "%{$query}%");
-                })
+                ->where(fn ($inner) => $this->likeAny($inner, ['name', 'headline'], $query))
                 ->limit(self::PER_SOURCE_LIMIT)
                 ->get(['id', 'name', 'headline', 'slug'])
                 ->map(fn (Service $service): array => [
@@ -340,6 +324,20 @@ class AdminSearchController extends Controller
                     'href' => '/admin/services',
                 ])->values()->all();
         });
+    }
+
+    /**
+     * Matches rows where any of the columns contains the query.
+     *
+     * @param  Builder<*>  $builder
+     * @param  list<string>  $columns
+     */
+    private function likeAny(Builder $builder, array $columns, string $query): void
+    {
+        foreach ($columns as $index => $column) {
+            $method = $index === 0 ? 'where' : 'orWhere';
+            $builder->{$method}($column, 'like', "%{$query}%");
+        }
     }
 
     /**
@@ -380,10 +378,7 @@ class AdminSearchController extends Controller
             ->with('item')
             ->whereNull('anonymized_at')
             ->where(function ($inner) use ($columns, $query): void {
-                foreach ($columns as $index => $column) {
-                    $method = $index === 0 ? 'where' : 'orWhere';
-                    $inner->{$method}($column, 'like', "%{$query}%");
-                }
+                $this->likeAny($inner, $columns, $query);
 
                 $inner->orWhereHas('item', fn ($item) => $item->where('title', 'like', "%{$query}%"));
             })
@@ -412,12 +407,7 @@ class AdminSearchController extends Controller
         return Page::query()
             ->where('kind', $kind)
             ->when($slugs !== null, fn ($builder) => $builder->whereIn('slug', $slugs))
-            ->where(function ($inner) use ($query, $searchColumns): void {
-                foreach ($searchColumns as $index => $column) {
-                    $method = $index === 0 ? 'where' : 'orWhere';
-                    $inner->{$method}($column, 'like', "%{$query}%");
-                }
-            })
+            ->where(fn ($inner) => $this->likeAny($inner, $searchColumns, $query))
             ->limit(self::PER_SOURCE_LIMIT)
             ->get()
             ->map(fn (Page $page): array => [

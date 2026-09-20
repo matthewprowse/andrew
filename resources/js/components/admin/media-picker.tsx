@@ -1,13 +1,14 @@
 import { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { getCsrfToken } from '@/lib/csrf';
+import {
+    mediaAcceptAttribute,
+    uploadMedia,
+    type MediaAccept,
+    type MediaValue,
+} from '@/lib/media-upload';
 
-export type MediaPickerValue = {
-    id: string;
-    url: string;
-    fileName: string;
-} | null;
+export type MediaPickerValue = MediaValue;
 
 export function MediaPicker({
     value,
@@ -17,7 +18,7 @@ export function MediaPicker({
 }: {
     value: MediaPickerValue;
     onChange: (value: MediaPickerValue) => void;
-    accept?: 'image' | 'document';
+    accept?: MediaAccept;
     label: string;
 }) {
     const inputRef = useRef<HTMLInputElement>(null);
@@ -27,37 +28,16 @@ export function MediaPicker({
     async function handleFile(file: File) {
         setUploading(true);
         setError('');
-        const formData = new FormData();
-        formData.append('file', file);
 
         try {
-            const response = await fetch('/admin/media', {
-                method: 'POST',
-                headers: {
-                    Accept: 'application/json',
-                    'X-XSRF-TOKEN': getCsrfToken(),
-                },
-                credentials: 'same-origin',
-                body: formData,
-            });
+            const result = await uploadMedia(file);
 
-            if (!response.ok) {
-                const json = await response.json().catch(() => null);
-                setError(json?.errors?.file?.[0] ?? 'Upload failed.');
+            if (!result.ok) {
+                setError(result.error);
                 return;
             }
 
-            const json = await response.json();
-            const media = json.data as {
-                id: string;
-                url: string;
-                fileName: string;
-            };
-            onChange({
-                id: media.id,
-                url: media.url,
-                fileName: media.fileName,
-            });
+            onChange(result.media);
         } finally {
             setUploading(false);
         }
@@ -70,13 +50,7 @@ export function MediaPicker({
                 ref={inputRef}
                 type="file"
                 className="hidden"
-                accept={
-                    accept === 'image'
-                        ? 'image/png,image/jpeg,image/webp'
-                        : accept === 'document'
-                          ? 'application/pdf'
-                          : undefined
-                }
+                accept={mediaAcceptAttribute(accept)}
                 onChange={(event) => {
                     const file = event.target.files?.[0];
                     event.target.value = '';

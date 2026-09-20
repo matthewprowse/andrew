@@ -13,8 +13,8 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Seeds placeholder starting rates for the currently-active cities only, using the same
- * distance/tier/deterministic-noise approach as resources/js/lib/estimator-rates.ts (ported once,
- * here, not kept as a live dependency — the real calculator reads stored rates, not derived ones).
+ * distance/tier/deterministic-noise approach as the original client-side rate generator (ported once,
+ * here, since removed — the real calculator reads stored rates, not derived ones).
  * These are placeholders for staff to review and overwrite, exactly like the mock data they replace.
  */
 class EstimatorRateSeeder extends Seeder
@@ -143,7 +143,7 @@ class EstimatorRateSeeder extends Seeder
         return 2 * 6371 * asin(sqrt($haversine));
     }
 
-    /** Stable pseudo-random value in [0, 1) for a key, ported from the FNV-1a hash in estimator-rates.ts. */
+    /** Stable pseudo-random value in [0, 1) for a key, ported from the FNV-1a hash in the original client-side rate generator. */
     private function noise(string $key): float
     {
         $hash = 0x811C9DC5;

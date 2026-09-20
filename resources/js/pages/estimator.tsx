@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { EstimatorAccessDialog } from '@/components/estimator/estimator-access-dialog';
 import { PageMeta } from '@/components/page-meta';
-import { getCsrfToken } from '@/lib/csrf';
-import { formatMoney } from '@/lib/estimator-pricing';
+import { csrfFetch } from '@/lib/csrf';
+import { formatMoney } from '@/lib/format-money';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
 import { Button } from '@/components/ui/button';
@@ -108,15 +108,9 @@ function Calculator({
         setCalculating(true);
         setError('');
         try {
-            const response = await fetch('/estimator/calculate', {
+            const response = await csrfFetch('/estimator/calculate', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json',
-                    'X-XSRF-TOKEN': getCsrfToken(),
-                },
-                credentials: 'same-origin',
-                body: JSON.stringify({
+                json: {
                     origin_city_id: Number(form.originCityId),
                     destination_city_id: Number(form.destinationCityId),
                     people: Number(form.people) || 1,
@@ -127,7 +121,7 @@ function Calculator({
                     container: form.container,
                     pets: Number(form.pets) || 0,
                     visa_amount: form.visaAmount || null,
-                }),
+                },
             });
 
             if (!response.ok) {

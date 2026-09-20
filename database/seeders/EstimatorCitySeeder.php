@@ -15,7 +15,7 @@ class EstimatorCitySeeder extends Seeder
                 return;
             }
 
-            // [city, country, continent, status]. Ported from resources/js/lib/estimator-cities.ts,
+            // [city, country, continent, status]. Ported from the original client-side city list (since removed),
             // with the two exact-duplicate rows (Tripoli/Libya, Bloemfontein/South Africa) removed
             // and the "Morrocco" typo corrected to "Morocco".
             $cities = [

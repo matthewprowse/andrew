@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import type { PageContent } from '@/types/page-content';
 import type { TeamMemberRecord } from '@/types/team';
+import { formatAdminDate } from '@/lib/format-admin-date';
 import { initials } from '@/lib/initials';
 
 type JobOpening = {
@@ -20,26 +21,6 @@ type JobOpening = {
     postedDate: string;
     description: string;
 };
-
-const months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-];
-
-function formatDate(date: string) {
-    const [year, month, day] = date.split('-').map(Number);
-    return `${String(day).padStart(2, '0')} ${months[month - 1]} ${year}`;
-}
 
 const heroSubheadingFallback =
     'Relocation Africa helps global organisations and relocating people make confident moves across Africa through local expertise, accountable service and genuine human support.';
@@ -200,7 +181,8 @@ export default function About({
                                         </span>
                                         <span className="inline-flex items-center gap-1.5">
                                             <CalendarDays className="size-3.5" />
-                                            Posted {formatDate(job.postedDate)}
+                                            Posted{' '}
+                                            {formatAdminDate(job.postedDate)}
                                         </span>
                                     </div>
                                     <p className="text-muted-foreground mt-3 max-w-2xl leading-7">

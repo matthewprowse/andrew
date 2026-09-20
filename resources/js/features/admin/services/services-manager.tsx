@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { ADMIN_PAGE_DESCRIPTION } from '@/lib/admin-copy';
+import { formatAdminLocaleDate } from '@/lib/format-admin-date';
 import { useForm } from '@inertiajs/react';
 import {
     createColumnHelper,
@@ -102,20 +103,9 @@ const serviceColumns = serviceColumnHelper.columns([
     }),
     serviceColumnHelper.accessor('updatedAt', {
         header: 'Date',
-        cell: (info) => formatDate(info.getValue()),
+        cell: (info) => formatAdminLocaleDate(info.getValue()),
     }),
 ]);
-
-function formatDate(iso: string) {
-    if (!iso) return '—';
-    const date = new Date(iso);
-    if (Number.isNaN(date.getTime())) return '—';
-    return date.toLocaleDateString('en-ZA', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-    });
-}
 
 export function ServicesManager({
     services,

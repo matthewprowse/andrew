@@ -63,7 +63,7 @@ import type {
 } from '@/types/block-page';
 import type { PageRevisionSummary } from '@/types/page-revision';
 import type { Auth } from '@/types/auth';
-import { getCsrfToken } from '@/lib/csrf';
+import { csrfFetch } from '@/lib/csrf';
 import { formatDateTime } from '@/lib/format-date-time';
 import { ADMIN_PAGE_DESCRIPTION } from '@/lib/admin-copy';
 
@@ -377,22 +377,16 @@ export function BlockPageEditor({
         setErrors({});
         setSaving(true);
         try {
-            const response = await fetch(`/admin/blocks/${slug}`, {
+            const response = await csrfFetch(`/admin/blocks/${slug}`, {
                 method: 'PUT',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                    'X-XSRF-TOKEN': getCsrfToken(),
-                },
-                credentials: 'same-origin',
-                body: JSON.stringify({
+                json: {
                     title,
                     blocks,
                     meta_title: metaTitle,
                     meta_description: metaDescription,
                     og_image_media_id: null,
                     base_revision_id: baseRevisionId,
-                }),
+                },
             });
             const json = await response.json();
 
@@ -435,13 +429,8 @@ export function BlockPageEditor({
         setConflict(null);
         setPublishing(true);
         try {
-            const response = await fetch(`/admin/blocks/${slug}/publish`, {
+            const response = await csrfFetch(`/admin/blocks/${slug}/publish`, {
                 method: 'PUT',
-                headers: {
-                    Accept: 'application/json',
-                    'X-XSRF-TOKEN': getCsrfToken(),
-                },
-                credentials: 'same-origin',
             });
             const json = await response.json();
 
@@ -467,16 +456,9 @@ export function BlockPageEditor({
         setConflict(null);
         setRestoringId(revisionId);
         try {
-            const response = await fetch(
+            const response = await csrfFetch(
                 `/admin/blocks/${slug}/revisions/${revisionId}/restore`,
-                {
-                    method: 'PUT',
-                    headers: {
-                        Accept: 'application/json',
-                        'X-XSRF-TOKEN': getCsrfToken(),
-                    },
-                    credentials: 'same-origin',
-                },
+                { method: 'PUT' },
             );
             if (!response.ok) {
                 setMessage('Could not restore this revision.');

@@ -1,5 +1,10 @@
+@php
+    $marketingPages = ['page', 'contact', 'service', 'services', 'resource', 'estimator', 'locations', 'country', 'error', 'checkout', 'about', 'blog', 'blog-post'];
+    $marketingMode = data_get($page, 'props.publicSettings.site.marketingTheme.mode');
+    $marketingBootstrapDark = in_array($page['component'] ?? null, $marketingPages, true) && $marketingMode === 'dark';
+@endphp
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" @class(['dark' => ($appearance ?? 'system') == 'dark'])>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" @class(['dark' => ($appearance ?? 'system') == 'dark']) @if($marketingBootstrapDark) data-marketing-bootstrap-dark="true" @endif>
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -19,6 +24,26 @@
             })();
         </script>
 
+        <script>
+            (function() {
+                const marketingPages = [
+                    'page', 'contact', 'service', 'services', 'resource',
+                    'estimator', 'locations', 'country', 'error', 'checkout',
+                    'about', 'blog', 'blog-post'
+                ];
+                const component = @json($page['component'] ?? null);
+                const mode = @json(data_get($page, 'props.publicSettings.site.marketingTheme.mode'));
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+                if (
+                    marketingPages.includes(component) &&
+                    (mode === 'dark' || (mode === 'system' && prefersDark))
+                ) {
+                    document.documentElement.setAttribute('data-marketing-bootstrap-dark', 'true');
+                }
+            })();
+        </script>
+
         {{-- Inline style to set the HTML background color based on our theme in app.css --}}
         <style>
             html {
@@ -33,6 +58,7 @@
              * Keep the first paint dark when the requested marketing page is
              * configured for dark mode. The bootstrap attribute is removed
              * as soon as the client theme bridge mounts. */
+            html[data-marketing-bootstrap-dark],
             html[data-marketing-bootstrap-dark] body {
                 background-color: oklch(0.145 0 0);
                 color: oklch(0.985 0 0);
@@ -53,32 +79,5 @@
     </head>
     <body class="font-sans antialiased">
         <x-inertia::app />
-
-        <script>
-            (function() {
-                try {
-                    const app = document.getElementById('app');
-                    const page = app?.dataset.page ? JSON.parse(app.dataset.page) : null;
-                    const marketingPages = [
-                        'page', 'contact', 'service', 'services', 'resource',
-                        'estimator', 'locations', 'country', 'error', 'checkout',
-                        'about', 'blog', 'blog-post'
-                    ];
-                    const theme = page?.component && marketingPages.includes(page.component)
-                        ? page?.props?.publicSettings?.site?.marketingTheme
-                        : null;
-                    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                    const isDark = theme?.mode === 'dark' ||
-                        (theme?.mode === 'system' && prefersDark);
-
-                    if (isDark) {
-                        document.documentElement.setAttribute('data-marketing-bootstrap-dark', 'true');
-                    }
-                } catch (_) {
-                    // React will apply the theme after mount if the bootstrap
-                    // data is unavailable or malformed.
-                }
-            })();
-        </script>
     </body>
 </html>
