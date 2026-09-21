@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -25,7 +25,7 @@ jobs:
           coverage: none
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '22'
           cache: npm
@@ -57,7 +57,7 @@ jobs:
           tar -czf release.tar.gz -C deploy --exclude='.env' --exclude='storage' .
 
       - name: Upload release archive to xneelo
-        uses: appleboy/scp-action@v0.1.7
+        uses: appleboy/scp-action@v1.0.0
         with:
           host: ${{ secrets.XNEELO_HOST }}
           username: ${{ secrets.XNEELO_USERNAME }}
@@ -67,7 +67,7 @@ jobs:
           target: 'public_html'
 
       - name: Extract release on xneelo
-        uses: appleboy/ssh-action@v1.2.2
+        uses: appleboy/ssh-action@v1.2.5
         with:
           host: ${{ secrets.XNEELO_HOST }}
           username: ${{ secrets.XNEELO_USERNAME }}
